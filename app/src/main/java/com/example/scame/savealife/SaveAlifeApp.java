@@ -3,8 +3,10 @@ package com.example.scame.savealife;
 import android.app.Application;
 import android.content.Context;
 
+import com.example.scame.savealife.data.di.DataModule;
 import com.example.scame.savealife.presentation.di.components.ApplicationComponent;
-import com.example.scame.savealife.presentation.di.DaggerApplicationComponent;
+import com.example.scame.savealife.presentation.di.components.DaggerApplicationComponent;
+import com.example.scame.savealife.presentation.di.modules.ApplicationModule;
 
 public class SaveAlifeApp extends Application {
 
@@ -22,7 +24,10 @@ public class SaveAlifeApp extends Application {
     }
 
     private void buildAppComponent() {
-        appComponent = DaggerApplicationComponent.create();
+        appComponent = DaggerApplicationComponent.builder()
+        .applicationModule(new ApplicationModule(this))
+        .dataModule(new DataModule())
+        .build();
     }
 
     public static ApplicationComponent getAppComponent() {

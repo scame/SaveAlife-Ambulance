@@ -8,5 +8,5 @@ import dagger.Subcomponent;
 
 @PerActivity
 @Subcomponent(modules = MapViewModule.class)
-public class MapViewComponent {
+public interface MapViewComponent {
 }

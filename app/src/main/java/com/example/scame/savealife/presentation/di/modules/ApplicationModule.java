@@ -44,6 +44,6 @@ public class ApplicationModule {
     @Singleton
     @Provides
     GraphHopper provideGraphhopper() {
-        return new GraphHopper();
+        return new GraphHopper().forMobile();
     }
 }
