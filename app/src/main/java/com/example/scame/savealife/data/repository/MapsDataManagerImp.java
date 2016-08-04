@@ -2,8 +2,10 @@ package com.example.scame.savealife.data.repository;
 
 
 import com.example.scame.savealife.SaveAlifeApp;
+import com.example.scame.savealife.presentation.AndroidHelper;
 import com.graphhopper.util.Constants;
 import com.graphhopper.util.Downloader;
+import com.graphhopper.util.Helper;
 
 import java.io.File;
 import java.io.IOException;
@@ -64,5 +66,31 @@ public class MapsDataManagerImp implements IMapsDataManager {
         Collections.addAll(nameList, files);
 
         return Observable.just(nameList);
+    }
+
+    @Override
+    public Observable<Integer> downloadMap(String downloadURL) {
+        File mapsFolder = SaveAlifeApp.getAppComponent().getFileDataManager().getMapsFolder();
+        Downloader downloader = SaveAlifeApp.getAppComponent().provideDownloader();
+
+        Observable<Integer> observable = Observable.create(subscriber -> {
+            String localFolder = Helper.pruneFileEnd(AndroidHelper.getFileName(downloadURL));
+            localFolder = new File(mapsFolder, localFolder + "-gh").getAbsolutePath();
+            //log("downloading & unzipping " + downloadURL + " to " + localFolder);
+
+            downloader.setTimeout(30000);
+
+            try {
+                downloader.downloadAndUnzip(downloadURL, localFolder, val -> {
+                    //publishProgress((int) val);
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            subscriber.onCompleted();
+        });
+
+        return observable;
     }
 }

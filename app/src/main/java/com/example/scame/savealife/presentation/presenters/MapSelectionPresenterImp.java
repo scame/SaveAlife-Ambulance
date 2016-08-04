@@ -1,9 +1,12 @@
 package com.example.scame.savealife.presentation.presenters;
 
 
-import com.example.scame.savealife.data.repository.IFileDataManager;
+import android.util.Log;
+
+import com.example.scame.savealife.SaveAlifeApp;
 import com.example.scame.savealife.data.repository.MapsDataManagerImp;
 import com.example.scame.savealife.domain.usecases.DefaultSubscriber;
+import com.example.scame.savealife.domain.usecases.DownloadMapUseCase;
 import com.example.scame.savealife.domain.usecases.GetLocalAreasUseCase;
 import com.example.scame.savealife.domain.usecases.GetRemoteAreasUseCase;
 import com.example.scame.savealife.presentation.AndroidHelper;
@@ -19,6 +22,7 @@ public class MapSelectionPresenterImp<T extends IMapSelectionPresenter.MapSelect
 
     private GetRemoteAreasUseCase remoteUseCase;
     private GetLocalAreasUseCase localUseCase;
+    private DownloadMapUseCase downloadMapUseCase;
 
     private T view;
     private File mapsFolder;
@@ -27,14 +31,13 @@ public class MapSelectionPresenterImp<T extends IMapSelectionPresenter.MapSelect
 
     private String currentArea;
 
-    private LocalMapsSubscriber subscriber;
-
     public MapSelectionPresenterImp(GetRemoteAreasUseCase remoteUseCase,
-                                    GetLocalAreasUseCase localAreasUseCase) {
+                                    GetLocalAreasUseCase localAreasUseCase,
+                                    DownloadMapUseCase downloadMapUseCase) {
 
         this.remoteUseCase = remoteUseCase;
         this.localUseCase = localAreasUseCase;
-        subscriber = new LocalMapsSubscriber();
+        this.downloadMapUseCase = downloadMapUseCase;
     }
 
     public interface MySpinnerListener {
@@ -47,8 +50,8 @@ public class MapSelectionPresenterImp<T extends IMapSelectionPresenter.MapSelect
     }
 
     @Override
-    public void resume(IFileDataManager dataManager) {
-        mapsFolder = dataManager.getMapsFolder();
+    public void resume() {
+        mapsFolder = SaveAlifeApp.getAppComponent().getFileDataManager().getMapsFolder();
 
         if (mapsFolder.exists()) {
             mapsFolder.mkdirs();
@@ -63,6 +66,7 @@ public class MapSelectionPresenterImp<T extends IMapSelectionPresenter.MapSelect
         downloadingFiles();
     }
 
+    MySpinnerListener spinnerListener = buildSpinnerListener();
 
     private void onFetchedAreaList(List<String> nameList, int areaType) {
         if (nameList == null || nameList.isEmpty()) {
@@ -70,7 +74,7 @@ public class MapSelectionPresenterImp<T extends IMapSelectionPresenter.MapSelect
             return;
         }
 
-        MySpinnerListener spinnerListener = buildSpinnerListener();
+
         Map<String, String> nameToFullName = getNameToFullNameMap(nameList);
 
         if (areaType == MapsDataManagerImp.LOCAL_AREA) {
@@ -82,6 +86,7 @@ public class MapSelectionPresenterImp<T extends IMapSelectionPresenter.MapSelect
 
     private MySpinnerListener buildSpinnerListener() {
         return (selectedArea, selectedFile) -> {
+            Log.i("inSpinner", selectedArea);
             if (selectedFile == null
                     || new File(mapsFolder, selectedArea + ".ghz").exists()
                     || new File(mapsFolder, selectedArea + "-gh").exists()) {
@@ -129,47 +134,9 @@ public class MapSelectionPresenterImp<T extends IMapSelectionPresenter.MapSelect
             return;
         }
 
-       /* final ProgressDialog dialog = new ProgressDialog(this);
-        dialog.setMessage("Downloading and uncompressing " + downloadURL);
-        dialog.setIndeterminate(false);
-        dialog.setMax(100);
-        dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        dialog.show();
-
-        new GHAsyncTask<Void, Integer, Object>() {
-            protected Object saveDoInBackground( Void... _ignore )
-                    throws Exception {
-                String localFolder = Helper.pruneFileEnd(AndroidHelper.getFileName(downloadURL));
-                localFolder = new File(mapsFolder, localFolder + "-gh").getAbsolutePath();
-                //log("downloading & unzipping " + downloadURL + " to " + localFolder);
-                Downloader downloader = new Downloader("AndroidGraphhopper");
-                downloader.setTimeout(30000);
-                downloader.downloadAndUnzip(downloadURL, localFolder,
-                        new ProgressListener() {
-                            @Override
-                            public void update( long val ) {
-                                publishProgress((int) val);
-                            }
-                        });
-                return null;
-            }
-
-            protected void onProgressUpdate(Integer... values) {
-                super.onProgressUpdate(values);
-                dialog.setProgress(values[0]);
-            }
-
-            protected void onPostExecute( Object _ignore ) {
-                dialog.dismiss();
-                if (hasError()) {
-                    String str = "An error happened while retrieving maps:" + getErrorMessage();
-                    //log(str, getError());
-                    //logUser(str);
-                } else {
-                    //loadMap(areaFolder);
-                }
-            }
-        }.execute();*/
+        view.startDownloading(downloadURL);
+        downloadMapUseCase.setDownloadUrl(downloadURL);
+        downloadMapUseCase.execute(new MapsDownloaderSubscriber());
     }
 
     private final class LocalMapsSubscriber extends DefaultSubscriber<List<String>> {
@@ -189,6 +156,17 @@ public class MapSelectionPresenterImp<T extends IMapSelectionPresenter.MapSelect
             super.onNext(strings);
 
             MapSelectionPresenterImp.this.onFetchedAreaList(strings, MapsDataManagerImp.REMOTE_AREA);
+        }
+    }
+
+    private final class MapsDownloaderSubscriber extends DefaultSubscriber<Integer> {
+
+        @Override
+        public void onCompleted() {
+            super.onCompleted();
+
+            view.hideDownloading();
+            //loadMap(areaFolder);
         }
     }
 

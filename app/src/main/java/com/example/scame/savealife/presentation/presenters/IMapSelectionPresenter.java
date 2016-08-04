@@ -11,6 +11,9 @@ public interface IMapSelectionPresenter<T> extends Presenter<T> {
         void initUIcomponents(List<String> nameList, Map<String, String> nameToFullName,
                               int areaType, MapSelectionPresenterImp.MySpinnerListener listener);
 
+        void startDownloading(String downloadUrl);
+
+        void hideDownloading();
     }
 
     void initFiles(String area);

@@ -1,5 +1,6 @@
 package com.example.scame.savealife.presentation.fragments;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -11,7 +12,6 @@ import android.widget.Button;
 import android.widget.Spinner;
 
 import com.example.scame.savealife.R;
-import com.example.scame.savealife.SaveAlifeApp;
 import com.example.scame.savealife.data.repository.MapsDataManagerImp;
 import com.example.scame.savealife.presentation.di.components.MapSelectionComponent;
 import com.example.scame.savealife.presentation.presenters.IMapSelectionPresenter;
@@ -35,7 +35,7 @@ public class MapSelectionFragment extends BaseFragment implements IMapSelectionP
 
     @Inject IMapSelectionPresenter<IMapSelectionPresenter.MapSelectionView> presenter;
 
-    private String currentArea = "berlin";
+    private ProgressDialog dialog;
 
     @Nullable
     @Override
@@ -43,20 +43,30 @@ public class MapSelectionFragment extends BaseFragment implements IMapSelectionP
         View fragmentView = inflater.inflate(R.layout.map_selection_fragment, container, false);
         ButterKnife.bind(this, fragmentView);
 
-
         getComponent(MapSelectionComponent.class).inject(this);
         presenter.setView(this);
-        presenter.resume(SaveAlifeApp.getAppComponent()
-                .getFileDataManager());
+        presenter.resume();
 
         return fragmentView;
     }
 
+    @Override
+    public void startDownloading(String downloadURL) {
+        dialog = new ProgressDialog(getContext());
+        dialog.setMessage("Downloading and uncompressing " + downloadURL);
+        dialog.setIndeterminate(true);
+        dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        dialog.show();
+    }
+
+    @Override
+    public void hideDownloading() {
+        dialog.hide();
+    }
 
     @Override
     public void initUIcomponents(List<String> nameList, Map<String,
             String> nameToFullName, int areaType, MapSelectionPresenterImp.MySpinnerListener listener) {
-
 
         if (areaType == MapsDataManagerImp.LOCAL_AREA) {
             Log.i("areaType == LOCAL", nameList.toString());
@@ -74,7 +84,6 @@ public class MapSelectionFragment extends BaseFragment implements IMapSelectionP
         ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(getContext(),
                 android.R.layout.simple_spinner_dropdown_item, nameList);
         spinner.setAdapter(spinnerArrayAdapter);
-        Log.i("adapterReceived: ", nameList.toString());
 
         button.setOnClickListener(v -> {
             Object item = spinner.getSelectedItem();

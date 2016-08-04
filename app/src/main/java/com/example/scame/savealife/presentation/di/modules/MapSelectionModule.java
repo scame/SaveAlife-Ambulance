@@ -5,6 +5,7 @@ import com.example.scame.savealife.data.repository.IMapsDataManager;
 import com.example.scame.savealife.data.repository.MapsDataManagerImp;
 import com.example.scame.savealife.domain.schedulers.ObserveOn;
 import com.example.scame.savealife.domain.schedulers.SubscribeOn;
+import com.example.scame.savealife.domain.usecases.DownloadMapUseCase;
 import com.example.scame.savealife.domain.usecases.GetLocalAreasUseCase;
 import com.example.scame.savealife.domain.usecases.GetRemoteAreasUseCase;
 import com.example.scame.savealife.presentation.di.PerActivity;
@@ -43,9 +44,17 @@ public class MapSelectionModule {
 
     @PerActivity
     @Provides
-    IMapSelectionPresenter<MapSelectionView> provideMapSelectionPresenter(
-            GetRemoteAreasUseCase remoteUseCase, GetLocalAreasUseCase localUseCase) {
+    DownloadMapUseCase getDownloadMapUseCase(IMapsDataManager dataManager,
+                                    SubscribeOn subscribeOn, ObserveOn observeOn) {
+        return new DownloadMapUseCase(dataManager, subscribeOn, observeOn);
+    }
 
-        return new MapSelectionPresenterImp<>(remoteUseCase, localUseCase);
+    @PerActivity
+    @Provides
+    IMapSelectionPresenter<MapSelectionView> provideMapSelectionPresenter(
+            GetRemoteAreasUseCase remoteUseCase, GetLocalAreasUseCase localUseCase,
+            DownloadMapUseCase downloadMapUseCase) {
+
+        return new MapSelectionPresenterImp<>(remoteUseCase, localUseCase, downloadMapUseCase);
     }
 }
