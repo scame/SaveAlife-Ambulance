@@ -38,6 +38,7 @@ public class MapViewModule {
                 mapView.getModel().frameBufferModel.getOverdrawFactor());
     }
 
+
     /**
      * usecases & presenters go here
      */
