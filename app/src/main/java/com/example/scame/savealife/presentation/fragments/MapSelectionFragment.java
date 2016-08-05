@@ -1,9 +1,9 @@
 package com.example.scame.savealife.presentation.fragments;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,7 +35,22 @@ public class MapSelectionFragment extends BaseFragment implements IMapSelectionP
 
     @Inject IMapSelectionPresenter<IMapSelectionPresenter.MapSelectionView> presenter;
 
+    private MapSelectionListener listener;
+
     private ProgressDialog dialog;
+
+    public interface MapSelectionListener {
+        void loadMap(String area);
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        if (context instanceof MapSelectionListener) {
+            listener = (MapSelectionListener) context;
+        }
+    }
 
     @Nullable
     @Override
@@ -69,17 +84,15 @@ public class MapSelectionFragment extends BaseFragment implements IMapSelectionP
             String> nameToFullName, int areaType, MapSelectionPresenterImp.MySpinnerListener listener) {
 
         if (areaType == MapsDataManagerImp.LOCAL_AREA) {
-            Log.i("areaType == LOCAL", nameList.toString());
             initUIcomponents(localButton, localSpinner, nameList, nameToFullName, listener);
         } else if (areaType == MapsDataManagerImp.REMOTE_AREA) {
-            Log.i("areaType == REMOTE", nameList.toString());
             initUIcomponents(remoteButton, remoteSpinner, nameList, nameToFullName, listener);
         }
     }
 
-    private void initUIcomponents(Button button, final Spinner spinner,
+    private void initUIcomponents(Button button, Spinner spinner,
                                   List<String> nameList, Map<String, String> nameToFullName,
-                                  final MapSelectionPresenterImp.MySpinnerListener myListener) {
+                                  MapSelectionPresenterImp.MySpinnerListener myListener) {
 
         ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(getContext(),
                 android.R.layout.simple_spinner_dropdown_item, nameList);
@@ -94,5 +107,10 @@ public class MapSelectionFragment extends BaseFragment implements IMapSelectionP
                 myListener.onSelect(null, null);
             }
         });
+    }
+
+    @Override
+    public void loadMap(String area) {
+        listener.loadMap(area);
     }
 }

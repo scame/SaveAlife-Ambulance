@@ -23,6 +23,8 @@
 
         <activity android:name=".presentation.activities.MapSelectionActivity" />
 
+        <activity android:name=".presentation.activities.MapDisplayActivity" />
+
     </application>
 
 </manifest>

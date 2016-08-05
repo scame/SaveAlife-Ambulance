@@ -1,8 +1,6 @@
 package com.example.scame.savealife.presentation.presenters;
 
 
-import android.util.Log;
-
 import com.example.scame.savealife.SaveAlifeApp;
 import com.example.scame.savealife.data.repository.MapsDataManagerImp;
 import com.example.scame.savealife.domain.usecases.DefaultSubscriber;
@@ -25,6 +23,7 @@ public class MapSelectionPresenterImp<T extends IMapSelectionPresenter.MapSelect
     private DownloadMapUseCase downloadMapUseCase;
 
     private T view;
+
     private File mapsFolder;
 
     private String downloadURL;
@@ -86,16 +85,15 @@ public class MapSelectionPresenterImp<T extends IMapSelectionPresenter.MapSelect
 
     private MySpinnerListener buildSpinnerListener() {
         return (selectedArea, selectedFile) -> {
-            Log.i("inSpinner", selectedArea);
             if (selectedFile == null
                     || new File(mapsFolder, selectedArea + ".ghz").exists()
                     || new File(mapsFolder, selectedArea + "-gh").exists()) {
                 downloadURL = null;
             } else {
                 downloadURL = selectedFile;
-
-                initFiles(selectedArea);
             }
+
+            initFiles(selectedArea);
         };
     }
 
@@ -128,9 +126,9 @@ public class MapSelectionPresenterImp<T extends IMapSelectionPresenter.MapSelect
     }
 
     void downloadingFiles() {
-        final File areaFolder = new File(mapsFolder, currentArea + "-gh");
+        final File areaFolder = new File(mapsFolder, currentArea + "-gh/" + currentArea + ".map");
         if (downloadURL == null || areaFolder.exists()) {
-            //loadMap(areaFolder);
+            view.loadMap(areaFolder.toString());
             return;
         }
 
@@ -165,9 +163,9 @@ public class MapSelectionPresenterImp<T extends IMapSelectionPresenter.MapSelect
         public void onCompleted() {
             super.onCompleted();
 
+            String area = mapsFolder.toString() + currentArea + "-gh/" + currentArea + ".map";
             view.hideDownloading();
-            //loadMap(areaFolder);
+            view.loadMap(area);
         }
     }
-
 }

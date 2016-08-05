@@ -1,22 +1,24 @@
 package com.example.scame.savealife.presentation.activities;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.example.scame.savealife.R;
-import com.example.scame.savealife.SaveAlifeApp;
 import com.example.scame.savealife.presentation.di.HasComponent;
 import com.example.scame.savealife.presentation.di.components.ApplicationComponent;
 import com.example.scame.savealife.presentation.di.components.MapSelectionComponent;
 import com.example.scame.savealife.presentation.di.modules.MapSelectionModule;
 import com.example.scame.savealife.presentation.fragments.MapSelectionFragment;
 
-public class MapSelectionActivity extends BaseActivity implements HasComponent<MapSelectionComponent> {
+public class MapSelectionActivity extends BaseActivity implements HasComponent<MapSelectionComponent>,
+                                                            MapSelectionFragment.MapSelectionListener {
 
     public static final String MAP_SELECTION_TAG = "mapSelection";
 
-    private MapSelectionComponent selectionComponent;
+    private MapSelectionComponent component;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -31,16 +33,20 @@ public class MapSelectionActivity extends BaseActivity implements HasComponent<M
 
     @Override
     protected void inject(ApplicationComponent component) {
-        selectionComponent = SaveAlifeApp
-                .getAppComponent()
-                .getMapSelectionComponent(new MapSelectionModule());
-
-        selectionComponent.inject(this);
+        this.component = component.getMapSelectionComponent(new MapSelectionModule());
+        this.component.inject(this);
     }
 
 
     @Override
     public MapSelectionComponent getComponent() {
-        return selectionComponent;
+        return component;
+    }
+
+    @Override
+    public void loadMap(String area) {
+        Intent i = new Intent(this, MapDisplayActivity.class);
+        i.putExtra(getString(R.string.AREA_KEY), area);
+        startActivity(i);
     }
 }

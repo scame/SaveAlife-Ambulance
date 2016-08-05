@@ -2,7 +2,14 @@ package com.example.scame.savealife.presentation.di.modules;
 
 import android.app.Activity;
 
+import com.example.scame.savealife.data.repository.IMapsDataManager;
+import com.example.scame.savealife.domain.schedulers.ObserveOn;
+import com.example.scame.savealife.domain.schedulers.SubscribeOn;
+import com.example.scame.savealife.domain.usecases.CalculatePathUseCase;
+import com.example.scame.savealife.domain.usecases.LoadGraphStorageUseCase;
 import com.example.scame.savealife.presentation.di.PerActivity;
+import com.example.scame.savealife.presentation.presenters.IMapViewPresenter;
+import com.example.scame.savealife.presentation.presenters.MapViewPresenterImp;
 
 import org.mapsforge.map.android.util.AndroidUtil;
 import org.mapsforge.map.android.view.MapView;
@@ -38,8 +45,28 @@ public class MapViewModule {
                 mapView.getModel().frameBufferModel.getOverdrawFactor());
     }
 
+    @PerActivity
+    @Provides
+    CalculatePathUseCase provideCalculatePathUseCase(IMapsDataManager dataManager,
+                                                     SubscribeOn subscribeOn, ObserveOn observeOn) {
 
-    /**
-     * usecases & presenters go here
-     */
+        return new CalculatePathUseCase(dataManager, subscribeOn, observeOn);
+    }
+
+    @PerActivity
+    @Provides
+    LoadGraphStorageUseCase provideLoadGraphStorageUseCase(IMapsDataManager dataManager,
+                                                           SubscribeOn subscribeOn, ObserveOn observeOn) {
+
+        return new LoadGraphStorageUseCase(dataManager, subscribeOn, observeOn);
+    }
+
+    @PerActivity
+    @Provides
+    IMapViewPresenter<IMapViewPresenter.MapViewView> provideMapViewPresenter(
+                        LoadGraphStorageUseCase storageUseCase,
+                        CalculatePathUseCase calculateUseCase) {
+
+        return new MapViewPresenterImp<>(calculateUseCase, storageUseCase);
+    }
 }

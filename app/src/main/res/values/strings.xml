@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">SaveAlife</string>
+
+    <string name="AREA_KEY">areaKey</string>
 </resources>

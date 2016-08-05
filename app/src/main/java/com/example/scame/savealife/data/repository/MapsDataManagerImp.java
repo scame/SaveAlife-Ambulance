@@ -2,10 +2,16 @@ package com.example.scame.savealife.data.repository;
 
 
 import com.example.scame.savealife.SaveAlifeApp;
+import com.example.scame.savealife.data.entities.LatLongPair;
 import com.example.scame.savealife.presentation.AndroidHelper;
+import com.graphhopper.GHRequest;
+import com.graphhopper.GHResponse;
+import com.graphhopper.GraphHopper;
+import com.graphhopper.PathWrapper;
 import com.graphhopper.util.Constants;
 import com.graphhopper.util.Downloader;
 import com.graphhopper.util.Helper;
+import com.graphhopper.util.Parameters;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 import rx.Observable;
+import rx.Subscriber;
 
 public class MapsDataManagerImp implements IMapsDataManager {
 
@@ -73,10 +80,9 @@ public class MapsDataManagerImp implements IMapsDataManager {
         File mapsFolder = SaveAlifeApp.getAppComponent().getFileDataManager().getMapsFolder();
         Downloader downloader = SaveAlifeApp.getAppComponent().provideDownloader();
 
-        Observable<Integer> observable = Observable.create(subscriber -> {
+        return Observable.create(subscriber -> {
             String localFolder = Helper.pruneFileEnd(AndroidHelper.getFileName(downloadURL));
             localFolder = new File(mapsFolder, localFolder + "-gh").getAbsolutePath();
-            //log("downloading & unzipping " + downloadURL + " to " + localFolder);
 
             downloader.setTimeout(30000);
 
@@ -90,7 +96,32 @@ public class MapsDataManagerImp implements IMapsDataManager {
 
             subscriber.onCompleted();
         });
+    }
 
-        return observable;
+    @Override
+    public Observable<PathWrapper> calculatePath(LatLongPair pair) {
+        GraphHopper hopper = SaveAlifeApp.getAppComponent().provideGraphhopper();
+
+        GHRequest req = new GHRequest(pair.getFromLat(), pair.getFromLon(),
+                pair.getToLat(), pair.getToLon()).
+                setAlgorithm(Parameters.Algorithms.DIJKSTRA_BI);
+        req.getHints().put(Parameters.Routing.INSTRUCTIONS, "false");
+        GHResponse resp = hopper.route(req);
+
+        return Observable.just(resp.getBest());
+    }
+
+    @Override
+    public Observable<Void> loadGraphStorage(String path) {
+        GraphHopper hopper = SaveAlifeApp.getAppComponent().provideGraphhopper();
+
+        return Observable.create(new Observable.OnSubscribe<Void>() {
+            @Override
+            public void call(Subscriber<? super Void> subscriber) {
+                String directoryPath = path.substring(0, path.lastIndexOf("/"));
+                hopper.load(new File(directoryPath).getAbsolutePath());
+                subscriber.onCompleted();
+            }
+        });
     }
 }

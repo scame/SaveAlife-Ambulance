@@ -2,7 +2,6 @@ package com.example.scame.savealife.presentation.di.modules;
 
 
 import com.example.scame.savealife.data.repository.IMapsDataManager;
-import com.example.scame.savealife.data.repository.MapsDataManagerImp;
 import com.example.scame.savealife.domain.schedulers.ObserveOn;
 import com.example.scame.savealife.domain.schedulers.SubscribeOn;
 import com.example.scame.savealife.domain.usecases.DownloadMapUseCase;
@@ -20,13 +19,6 @@ import static com.example.scame.savealife.presentation.presenters.IMapSelectionP
 
 @Module
 public class MapSelectionModule {
-
-
-    @PerActivity
-    @Provides
-    IMapsDataManager provideMapsDataManager() {
-        return new MapsDataManagerImp();
-    }
 
     @PerActivity
     @Provides

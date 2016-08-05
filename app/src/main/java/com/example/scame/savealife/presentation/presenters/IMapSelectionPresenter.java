@@ -14,6 +14,8 @@ public interface IMapSelectionPresenter<T> extends Presenter<T> {
         void startDownloading(String downloadUrl);
 
         void hideDownloading();
+
+        void loadMap(String area);
     }
 
     void initFiles(String area);
