@@ -1,13 +1,14 @@
 package com.example.scame.savealife.presentation.presenters;
 
+import com.graphhopper.PathWrapper;
+
 import org.mapsforge.core.model.LatLong;
-import org.mapsforge.map.layer.overlay.Polyline;
 
 public interface IMapViewPresenter<T> extends Presenter<T> {
 
     interface MapViewView {
 
-        void addPolyline(Polyline polyline);
+        void addPolyline(PathWrapper pathWrapper);
 
         void updateLayers(LatLong latLong, int res);
 

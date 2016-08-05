@@ -1,6 +1,7 @@
 package com.example.scame.savealife.presentation.fragments;
 
 
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -13,8 +14,12 @@ import com.example.scame.savealife.R;
 import com.example.scame.savealife.SaveAlifeApp;
 import com.example.scame.savealife.presentation.di.components.MapViewComponent;
 import com.example.scame.savealife.presentation.presenters.IMapViewPresenter;
+import com.graphhopper.PathWrapper;
+import com.graphhopper.util.PointList;
 
 import org.mapsforge.core.graphics.Bitmap;
+import org.mapsforge.core.graphics.Paint;
+import org.mapsforge.core.graphics.Style;
 import org.mapsforge.core.model.LatLong;
 import org.mapsforge.core.model.MapPosition;
 import org.mapsforge.core.model.Point;
@@ -30,6 +35,7 @@ import org.mapsforge.map.reader.MapFile;
 import org.mapsforge.map.rendertheme.InternalRenderTheme;
 
 import java.io.File;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -104,7 +110,8 @@ public class MapDisplayFragment extends BaseFragment implements IMapViewPresente
 
 
     @Override
-    public void addPolyline(Polyline polyline) {
+    public void addPolyline(PathWrapper pathWrapper) {
+        Polyline polyline = createPolyline(pathWrapper);
         mapView.getLayerManager().getLayers().add(polyline);
     }
 
@@ -131,5 +138,23 @@ public class MapDisplayFragment extends BaseFragment implements IMapViewPresente
         Drawable drawable = getResources().getDrawable(resource);
         Bitmap bitmap = AndroidGraphicFactory.convertToBitmap(drawable);
         return new Marker(p, bitmap, 0, -bitmap.getHeight() / 2);
+    }
+
+    private Polyline createPolyline(PathWrapper response ) {
+        Paint paintStroke = AndroidGraphicFactory.INSTANCE.createPaint();
+        paintStroke.setStyle(Style.STROKE);
+        paintStroke.setColor(Color.argb(128, 209, 24, 24));
+        paintStroke.setDashPathEffect(new float[] { 25, 15 });
+        paintStroke.setStrokeWidth(8);
+
+        Polyline line = new Polyline(paintStroke, AndroidGraphicFactory.INSTANCE);
+        List<LatLong> geoPoints = line.getLatLongs();
+        PointList tmp = response.getPoints();
+
+        for (int i = 0; i < response.getPoints().getSize(); i++) {
+            geoPoints.add(new LatLong(tmp.getLatitude(i), tmp.getLongitude(i)));
+        }
+
+        return line;
     }
 }

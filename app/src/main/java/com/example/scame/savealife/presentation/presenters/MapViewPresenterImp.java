@@ -1,6 +1,5 @@
 package com.example.scame.savealife.presentation.presenters;
 
-import android.graphics.Color;
 import android.util.Log;
 
 import com.example.scame.savealife.R;
@@ -11,15 +10,8 @@ import com.example.scame.savealife.domain.usecases.DefaultSubscriber;
 import com.example.scame.savealife.domain.usecases.LoadGraphStorageUseCase;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.PathWrapper;
-import com.graphhopper.util.PointList;
 
-import org.mapsforge.core.graphics.Paint;
-import org.mapsforge.core.graphics.Style;
 import org.mapsforge.core.model.LatLong;
-import org.mapsforge.map.android.graphics.AndroidGraphicFactory;
-import org.mapsforge.map.layer.overlay.Polyline;
-
-import java.util.List;
 
 import javax.inject.Inject;
 
@@ -57,14 +49,14 @@ public class MapViewPresenterImp<T extends IMapViewPresenter.MapViewView>
         if (start != null && end == null) {
             end = tapLatLong;
             shortestPathRunning = true;
-            view.updateLayers(end, R.drawable.ic_launcher);
+            view.updateLayers(end, R.drawable.asterisk);
 
             calcPath(start.latitude, start.longitude, end.latitude, end.longitude);
         } else {
             start = tapLatLong;
             end = null;
             view.removeLayers();
-            view.updateLayers(start, R.drawable.ic_launcher);
+            view.updateLayers(start, R.drawable.asterisk);
         }
 
         return true;
@@ -98,25 +90,6 @@ public class MapViewPresenterImp<T extends IMapViewPresenter.MapViewView>
         hopper = null;
     }
 
-    private Polyline createPolyline(PathWrapper response ) {
-        Paint paintStroke = AndroidGraphicFactory.INSTANCE.createPaint();
-        paintStroke.setStyle(Style.STROKE);
-        paintStroke.setColor(Color.argb(128, 0, 0xCC, 0x33));
-        paintStroke.setDashPathEffect(new float[] { 25, 15 });
-        paintStroke.setStrokeWidth(8);
-
-        Polyline line = new Polyline(paintStroke, AndroidGraphicFactory.INSTANCE);
-        List<LatLong> geoPoints = line.getLatLongs();
-        PointList tmp = response.getPoints();
-
-        for (int i = 0; i < response.getPoints().getSize(); i++) {
-            geoPoints.add(new LatLong(tmp.getLatitude(i), tmp.getLongitude(i)));
-        }
-
-        return line;
-    }
-
-
     public void calcPath(final double fromLat, final double fromLon,
                           final double toLat, final double toLon) {
 
@@ -135,25 +108,17 @@ public class MapViewPresenterImp<T extends IMapViewPresenter.MapViewView>
             super.onNext(pathWrapper);
 
             shortestPathRunning = false;
-            MapViewPresenterImp.this.view.addPolyline(createPolyline(pathWrapper));
+            MapViewPresenterImp.this.view.addPolyline(pathWrapper);
         }
     }
 
     private final class LoadStorageSubscriber extends DefaultSubscriber<Void> {
 
         @Override
-        public void onNext(Void aVoid) {
-            super.onNext(aVoid);
-
-            Log.i("inOnNext", "true");
-        }
-
-        @Override
         public void onCompleted() {
             super.onCompleted();
 
-
-            Log.i("load", "found graph: " + hopper.getGraphHopperStorage().toString() + ", nodes " +
+            Log.i("loaded", "found graph: " + hopper.getGraphHopperStorage().toString() + ", nodes " +
                     hopper.getGraphHopperStorage().getNodes());
         }
     }
