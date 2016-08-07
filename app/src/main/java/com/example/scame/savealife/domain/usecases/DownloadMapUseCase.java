@@ -7,7 +7,7 @@ import com.example.scame.savealife.domain.schedulers.SubscribeOn;
 
 import rx.Observable;
 
-public class DownloadMapUseCase extends UseCase<Integer> {
+public class DownloadMapUseCase extends UseCase<Void> {
 
     private IMapsDataManager dataManager;
 
@@ -21,7 +21,7 @@ public class DownloadMapUseCase extends UseCase<Integer> {
     }
 
     @Override
-    protected Observable<Integer> getUseCaseObservable() {
+    protected Observable<Void> getUseCaseObservable() {
         return dataManager.downloadMap(downloadUrl);
     }
 

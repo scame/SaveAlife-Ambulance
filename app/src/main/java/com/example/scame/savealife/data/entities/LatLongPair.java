@@ -3,10 +3,10 @@ package com.example.scame.savealife.data.entities;
 
 public class LatLongPair {
 
-    private final double fromLat;
-    private final double fromLon;
-    private final double toLat;
-    private final double toLon;
+    private double fromLat;
+    private double fromLon;
+    private double toLat;
+    private double toLon;
 
     public LatLongPair(double fromLat, double fromLon, double toLat, double toLon) {
         this.fromLat = fromLat;

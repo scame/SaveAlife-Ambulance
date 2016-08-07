@@ -25,4 +25,12 @@ public class FileDataManagerImp implements IFileDataManager {
 
         return mapsFolder;
     }
+
+    public static String getFileName(String str ) {
+        int index = str.lastIndexOf("/");
+        if (index > 0) {
+            return str.substring(index + 1);
+        }
+        return str;
+    }
 }

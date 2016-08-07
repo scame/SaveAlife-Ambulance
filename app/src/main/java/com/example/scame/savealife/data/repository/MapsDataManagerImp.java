@@ -3,7 +3,7 @@ package com.example.scame.savealife.data.repository;
 
 import com.example.scame.savealife.SaveAlifeApp;
 import com.example.scame.savealife.data.entities.LatLongPair;
-import com.example.scame.savealife.presentation.AndroidHelper;
+import com.example.scame.savealife.data.mappers.NameToFullNameMapper;
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.GraphHopper;
@@ -27,9 +27,16 @@ public class MapsDataManagerImp implements IMapsDataManager {
     public static final int LOCAL_AREA = 0;
     public static final int REMOTE_AREA = 1;
 
+    private NameToFullNameMapper mapper;
+
     private String fileListURL = "http://download2.graphhopper.com/public/maps/"
             + Constants.getMajorVersion() + "/";
     private String prefixURL = fileListURL;
+
+    // provide with dagger later
+    public MapsDataManagerImp() {
+        mapper = new NameToFullNameMapper();
+    }
 
     @Override
     public Observable<List<String>> getRemoteAreaList() {
@@ -76,12 +83,12 @@ public class MapsDataManagerImp implements IMapsDataManager {
     }
 
     @Override
-    public Observable<Integer> downloadMap(String downloadURL) {
+    public Observable<Void> downloadMap(String downloadURL) {
         File mapsFolder = SaveAlifeApp.getAppComponent().getFileDataManager().getMapsFolder();
         Downloader downloader = SaveAlifeApp.getAppComponent().provideDownloader();
 
         return Observable.create(subscriber -> {
-            String localFolder = Helper.pruneFileEnd(AndroidHelper.getFileName(downloadURL));
+            String localFolder = Helper.pruneFileEnd(FileDataManagerImp.getFileName(downloadURL));
             localFolder = new File(mapsFolder, localFolder + "-gh").getAbsolutePath();
 
             downloader.setTimeout(30000);

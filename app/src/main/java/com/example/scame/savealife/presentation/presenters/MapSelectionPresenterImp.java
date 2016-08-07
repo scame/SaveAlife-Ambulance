@@ -7,13 +7,11 @@ import com.example.scame.savealife.domain.usecases.DefaultSubscriber;
 import com.example.scame.savealife.domain.usecases.DownloadMapUseCase;
 import com.example.scame.savealife.domain.usecases.GetLocalAreasUseCase;
 import com.example.scame.savealife.domain.usecases.GetRemoteAreasUseCase;
-import com.example.scame.savealife.presentation.AndroidHelper;
-import com.graphhopper.util.Helper;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 public class MapSelectionPresenterImp<T extends IMapSelectionPresenter.MapSelectionView>
                                                 implements IMapSelectionPresenter<T> {
@@ -30,6 +28,8 @@ public class MapSelectionPresenterImp<T extends IMapSelectionPresenter.MapSelect
 
     private String currentArea;
 
+    private MySpinnerListener spinnerListener;
+
     public MapSelectionPresenterImp(GetRemoteAreasUseCase remoteUseCase,
                                     GetLocalAreasUseCase localAreasUseCase,
                                     DownloadMapUseCase downloadMapUseCase) {
@@ -37,6 +37,8 @@ public class MapSelectionPresenterImp<T extends IMapSelectionPresenter.MapSelect
         this.remoteUseCase = remoteUseCase;
         this.localUseCase = localAreasUseCase;
         this.downloadMapUseCase = downloadMapUseCase;
+
+        spinnerListener = buildSpinnerListener();
     }
 
     public interface MySpinnerListener {
@@ -65,21 +67,19 @@ public class MapSelectionPresenterImp<T extends IMapSelectionPresenter.MapSelect
         downloadingFiles();
     }
 
-    MySpinnerListener spinnerListener = buildSpinnerListener();
-
-    private void onFetchedAreaList(List<String> nameList, int areaType) {
-        if (nameList == null || nameList.isEmpty()) {
+    private void onFetchedAreaList(Map<String, String> nameMap, int areaType) {
+        if (nameMap == null || nameMap.isEmpty()) {
             //logUser("No maps created for your version!? " + fileListURL);
             return;
         }
 
-
-        Map<String, String> nameToFullName = getNameToFullNameMap(nameList);
-
+        List<String> nameList = new ArrayList<>(nameMap.keySet());
         if (areaType == MapsDataManagerImp.LOCAL_AREA) {
-            view.initUIcomponents(nameList, nameToFullName, MapsDataManagerImp.LOCAL_AREA, spinnerListener);
+            view.initUIcomponents(nameList, nameMap,
+                    MapsDataManagerImp.LOCAL_AREA, spinnerListener);
         } else if (areaType == MapsDataManagerImp.REMOTE_AREA) {
-            view.initUIcomponents(nameList, nameToFullName, MapsDataManagerImp.REMOTE_AREA, spinnerListener);
+            view.initUIcomponents(nameList, nameMap,
+                    MapsDataManagerImp.REMOTE_AREA, spinnerListener);
         }
     }
 
@@ -95,24 +95,6 @@ public class MapSelectionPresenterImp<T extends IMapSelectionPresenter.MapSelect
 
             initFiles(selectedArea);
         };
-    }
-
-    private Map<String, String> getNameToFullNameMap(List<String> nameList) {
-        final Map<String, String> nameToFullName = new TreeMap<>();
-
-        for (String fullName : nameList) {
-            String tmp = Helper.pruneFileEnd(fullName);
-            if (tmp.endsWith("-gh"))
-                tmp = tmp.substring(0, tmp.length() - 3);
-
-            tmp = AndroidHelper.getFileName(tmp);
-            nameToFullName.put(tmp, fullName);
-        }
-
-        nameList.clear();
-        nameList.addAll(nameToFullName.keySet());
-
-        return nameToFullName;
     }
 
     @Override
@@ -137,27 +119,27 @@ public class MapSelectionPresenterImp<T extends IMapSelectionPresenter.MapSelect
         downloadMapUseCase.execute(new MapsDownloaderSubscriber());
     }
 
-    private final class LocalMapsSubscriber extends DefaultSubscriber<List<String>> {
+    private final class LocalMapsSubscriber extends DefaultSubscriber<Map<String, String>> {
 
         @Override
-        public void onNext(List<String> strings) {
-            super.onNext(strings);
+        public void onNext(Map<String, String> nameMap) {
+            super.onNext(nameMap);
 
-            MapSelectionPresenterImp.this.onFetchedAreaList(strings, MapsDataManagerImp.LOCAL_AREA);
+            MapSelectionPresenterImp.this.onFetchedAreaList(nameMap, MapsDataManagerImp.LOCAL_AREA);
         }
     }
 
-    private final class RemoteMapsSubscriber extends DefaultSubscriber<List<String>> {
+    private final class RemoteMapsSubscriber extends DefaultSubscriber<Map<String, String>> {
 
         @Override
-        public void onNext(List<String> strings) {
-            super.onNext(strings);
+        public void onNext(Map<String, String> nameMap) {
+            super.onNext(nameMap);
 
-            MapSelectionPresenterImp.this.onFetchedAreaList(strings, MapsDataManagerImp.REMOTE_AREA);
+            MapSelectionPresenterImp.this.onFetchedAreaList(nameMap, MapsDataManagerImp.REMOTE_AREA);
         }
     }
 
-    private final class MapsDownloaderSubscriber extends DefaultSubscriber<Integer> {
+    private final class MapsDownloaderSubscriber extends DefaultSubscriber<Void> {
 
         @Override
         public void onCompleted() {

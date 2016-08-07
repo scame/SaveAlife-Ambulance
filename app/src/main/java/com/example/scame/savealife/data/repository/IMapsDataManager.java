@@ -14,7 +14,7 @@ public interface IMapsDataManager {
 
     Observable<List<String>> getLocalAreaList();
 
-    Observable<Integer> downloadMap(String downloadUrl);
+    Observable<Void> downloadMap(String downloadUrl);
 
     Observable<PathWrapper> calculatePath(LatLongPair pair);
 

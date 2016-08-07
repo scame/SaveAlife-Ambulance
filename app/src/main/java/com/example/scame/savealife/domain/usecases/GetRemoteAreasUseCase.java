@@ -1,14 +1,15 @@
 package com.example.scame.savealife.domain.usecases;
 
+import com.example.scame.savealife.data.mappers.NameToFullNameMapper;
 import com.example.scame.savealife.data.repository.IMapsDataManager;
 import com.example.scame.savealife.domain.schedulers.ObserveOn;
 import com.example.scame.savealife.domain.schedulers.SubscribeOn;
 
-import java.util.List;
+import java.util.Map;
 
 import rx.Observable;
 
-public class GetRemoteAreasUseCase extends UseCase<List<String>>{
+public class GetRemoteAreasUseCase extends UseCase<Map<String, String>>{
 
     private IMapsDataManager dataManager;
 
@@ -19,7 +20,8 @@ public class GetRemoteAreasUseCase extends UseCase<List<String>>{
     }
 
     @Override
-    protected Observable<List<String>> getUseCaseObservable() {
-        return Observable.defer(() -> dataManager.getRemoteAreaList());
+    protected Observable<Map<String, String>> getUseCaseObservable() {
+        return Observable.defer(() -> dataManager.getRemoteAreaList())
+                .map(NameToFullNameMapper::getNameToFullNameMap);
     }
 }
