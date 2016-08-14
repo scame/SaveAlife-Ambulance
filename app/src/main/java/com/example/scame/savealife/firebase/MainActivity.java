@@ -1,5 +1,6 @@
 package com.example.scame.savealife.firebase;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -7,6 +8,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.example.scame.savealife.R;
+import com.example.scame.savealife.presentation.activities.PointLocationActivity;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
 
@@ -21,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //startActivity(new Intent(this, MapSelectionActivity.class));
+        startActivity(new Intent(this, PointLocationActivity.class));
 
         if (getIntent().getExtras() != null) {
             for (String key : getIntent().getExtras().keySet()) {

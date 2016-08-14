@@ -36,20 +36,6 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:24.1.1'
 
-    compile(group: 'com.graphhopper', name: 'graphhopper', version: '0.8-SNAPSHOT') {
-        exclude group: 'com.google.protobuf', module: 'protobuf-java'
-        exclude group: 'org.openstreetmap.osmosis', module: 'osmosis-osm-binary'
-        exclude group: 'org.apache.xmlgraphics', module: 'xmlgraphics-commons'
-    }
-
-    compile group: 'org.mapsforge', name: 'mapsforge-core', version: '0.6.1'
-    compile group: 'org.mapsforge', name: 'mapsforge-map', version: '0.6.1'
-    compile group: 'org.mapsforge', name: 'mapsforge-map-android', version: '0.6.1'
-    compile group: 'org.mapsforge', name: 'mapsforge-map-reader', version: '0.6.1'
-
-    compile group: 'org.slf4j', name: 'slf4j-android', version: '1.7.12'
-    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.12'
-
     apt 'com.google.dagger:dagger-compiler:2.5'
     compile 'com.google.dagger:dagger:2.5'
     provided 'javax.annotation:jsr250-api:1.0'
@@ -68,10 +54,10 @@ dependencies {
 
     compile 'com.android.support:design:24.1.1'
 
-    compile 'com.google.android.gms:play-services-location:9.2.0'
+    compile 'com.google.android.gms:play-services:9.4.0'
 
-    compile 'com.google.firebase:firebase-core:9.2.0'
-    compile 'com.google.firebase:firebase-messaging:9.2.0'
+    compile 'com.google.firebase:firebase-core:9.4.0'
+    compile 'com.google.firebase:firebase-messaging:9.4.0'
 }
 
 apply plugin: 'com.google.gms.google-services'

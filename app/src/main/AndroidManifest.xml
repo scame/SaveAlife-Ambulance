@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.scame.savealife">
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -24,6 +23,8 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".presentation.activities.PointLocationActivity" />
+
         <service
             android:name=".firebase.MyFirebaseMessagingService">
             <intent-filter>
@@ -37,6 +38,10 @@
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
             </intent-filter>
         </service>
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyArjS3Y8jjXqP3q2yVtkNDRJ5h17Tow0G8"/>
 
     </application>
 
