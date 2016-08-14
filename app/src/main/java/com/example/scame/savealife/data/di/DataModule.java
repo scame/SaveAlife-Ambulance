@@ -1,11 +1,5 @@
 package com.example.scame.savealife.data.di;
 
-import com.example.scame.savealife.data.repository.FileDataManagerImp;
-import com.example.scame.savealife.data.repository.IFileDataManager;
-import com.example.scame.savealife.data.repository.IMapsDataManager;
-import com.example.scame.savealife.data.repository.MapsDataManagerImp;
-import com.graphhopper.util.Downloader;
-
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Singleton;
@@ -38,22 +32,4 @@ public class DataModule {
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build();
     }
-
-    @Singleton
-    @Provides
-    Downloader provideDownloader() {
-        return new Downloader("Graphhopper android");
     }
-
-    @Singleton
-    @Provides
-    IFileDataManager provideFileDataManager() {
-        return new FileDataManagerImp();
-    }
-
-    @Singleton
-    @Provides
-    IMapsDataManager provideMapsDataManager() {
-        return new MapsDataManagerImp();
-    }
-}

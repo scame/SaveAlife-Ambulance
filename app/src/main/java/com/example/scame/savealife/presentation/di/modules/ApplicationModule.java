@@ -5,7 +5,6 @@ import android.app.Application;
 
 import com.example.scame.savealife.domain.schedulers.ObserveOn;
 import com.example.scame.savealife.domain.schedulers.SubscribeOn;
-import com.graphhopper.GraphHopper;
 
 import javax.inject.Singleton;
 
@@ -39,11 +38,5 @@ public class ApplicationModule {
     @Provides
     SubscribeOn provideSubscribeOn() {
         return Schedulers::newThread;
-    }
-
-    @Singleton
-    @Provides
-    GraphHopper provideGraphhopper() {
-        return new GraphHopper().forMobile();
     }
 }
