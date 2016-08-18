@@ -39,6 +39,8 @@
             </intent-filter>
         </service>
 
+        <service android:name=".LocationService" />
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyArjS3Y8jjXqP3q2yVtkNDRJ5h17Tow0G8"/>

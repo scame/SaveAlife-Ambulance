@@ -32,4 +32,4 @@ public class DataModule {
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build();
     }
-    }
+}

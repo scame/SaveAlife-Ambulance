@@ -9,15 +9,12 @@ import android.support.v7.app.AppCompatActivity;
 import com.example.scame.savealife.SaveAlifeApp;
 import com.example.scame.savealife.presentation.di.components.ApplicationComponent;
 
-import butterknife.ButterKnife;
-
 public abstract class BaseActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ButterKnife.bind(this);
         inject(getAppComponent());
     }
 

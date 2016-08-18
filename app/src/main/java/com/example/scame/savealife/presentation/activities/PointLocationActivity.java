@@ -1,12 +1,17 @@
 package com.example.scame.savealife.presentation.activities;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.example.scame.savealife.LocationService;
 import com.example.scame.savealife.R;
 import com.example.scame.savealife.presentation.di.components.ApplicationComponent;
+import com.example.scame.savealife.presentation.di.components.PointLocationComponent;
+import com.example.scame.savealife.presentation.di.modules.PointLocationModule;
+import com.example.scame.savealife.presentation.presenters.IPointLocationPresenter;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
@@ -17,14 +22,26 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import javax.inject.Inject;
+
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 public class PointLocationActivity extends BaseActivity implements OnMapReadyCallback {
 
     private GoogleMap googleMap;
+
+    private PointLocationComponent component;
+
+    @Inject
+    IPointLocationPresenter<IPointLocationPresenter.PointLocationView> presenter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.point_location_activity);
+
+        ButterKnife.bind(this);
 
         configureMap();
         configureAutocomplete();
@@ -56,7 +73,13 @@ public class PointLocationActivity extends BaseActivity implements OnMapReadyCal
 
     @Override
     protected void inject(ApplicationComponent component) {
+        this.component = component.getPointLocationComponent(new PointLocationModule());
+        this.component.inject(this);
+    }
 
+    @OnClick(R.id.location_fab)
+    public void onLocationFabClick() {
+        startService(new Intent(this, LocationService.class));
     }
 
     @Override
