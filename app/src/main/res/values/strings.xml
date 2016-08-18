@@ -2,4 +2,7 @@
     <string name="app_name">SaveAlife Ambulance</string>
 
     <string name="AREA_KEY">areaKey</string>
+
+    <string name="lat_key">latitudeKey</string>
+    <string name="long_key">longitudeKey</string>
 </resources>

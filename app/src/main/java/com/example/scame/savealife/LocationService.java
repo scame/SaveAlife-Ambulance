@@ -11,9 +11,12 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 public class LocationService extends Service {
+
+    public static final String BROADCAST_ACTION_UPDATE = "updateLatLong";
 
     private static final String TAG = "locationService";
 
@@ -104,6 +107,7 @@ public class LocationService extends Service {
         @Override
         public void onLocationChanged(Location location) {
             Log.i(TAG, "onLocationChanged: " + location);
+            sendLocationBroadcast(location);
             lastLocation.set(location);
         }
 
@@ -121,6 +125,15 @@ public class LocationService extends Service {
         public void onStatusChanged(String provider, int status, Bundle extras) {
             Log.i(TAG, "onStatusChanged: " + provider);
         }
+    }
+
+    private void sendLocationBroadcast(Location location) {
+        Intent i = new Intent(BROADCAST_ACTION_UPDATE);
+        i.putExtra(getString(R.string.lat_key), location.getLatitude());
+        i.putExtra(getString(R.string.long_key), location.getLongitude());
+
+        LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(this);
+        lbm.sendBroadcast(i);
     }
 
     @Nullable

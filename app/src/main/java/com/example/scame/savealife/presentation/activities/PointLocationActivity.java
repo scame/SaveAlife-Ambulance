@@ -1,9 +1,13 @@
 package com.example.scame.savealife.presentation.activities;
 
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.example.scame.savealife.LocationService;
@@ -20,6 +24,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import javax.inject.Inject;
@@ -30,6 +36,7 @@ import butterknife.OnClick;
 public class PointLocationActivity extends BaseActivity implements OnMapReadyCallback {
 
     private GoogleMap googleMap;
+    private Marker currentPosition;
 
     private PointLocationComponent component;
 
@@ -45,6 +52,23 @@ public class PointLocationActivity extends BaseActivity implements OnMapReadyCal
 
         configureMap();
         configureAutocomplete();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        IntentFilter filter = new IntentFilter(LocationService.BROADCAST_ACTION_UPDATE);
+        LocalBroadcastManager.getInstance(this)
+                .registerReceiver(locationBroadcastReceiver, filter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        LocalBroadcastManager.getInstance(this)
+                .unregisterReceiver(locationBroadcastReceiver);
     }
 
     private void configureMap() {
@@ -89,4 +113,18 @@ public class PointLocationActivity extends BaseActivity implements OnMapReadyCal
         googleMap.setOnMapClickListener(latLng ->
                 googleMap.addMarker(new MarkerOptions().position(latLng)));
     }
+
+    private final BroadcastReceiver locationBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (currentPosition != null) {
+                currentPosition.remove();
+            }
+
+            double lat = intent.getDoubleExtra(getString(R.string.lat_key), 0);
+            double longitude = intent.getDoubleExtra(getString(R.string.long_key), 0);
+            currentPosition = googleMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(lat, longitude)));
+        }
+    };
 }
