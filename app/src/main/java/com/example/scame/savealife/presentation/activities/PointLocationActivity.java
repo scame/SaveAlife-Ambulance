@@ -13,6 +13,7 @@ import com.example.scame.savealife.R;
 import com.example.scame.savealife.presentation.di.components.ApplicationComponent;
 import com.example.scame.savealife.presentation.di.components.PointLocationComponent;
 import com.example.scame.savealife.presentation.di.modules.PointLocationModule;
+import com.example.scame.savealife.presentation.fragments.ConfirmDialogFragment;
 import com.example.scame.savealife.presentation.presenters.IPointLocationPresenter;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.Place;
@@ -31,7 +32,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class PointLocationActivity extends BaseActivity implements OnMapReadyCallback {
+public class PointLocationActivity extends BaseActivity implements OnMapReadyCallback,
+                                            ConfirmDialogFragment.ConfirmDialogListener {
 
     @BindView(R.id.start_fab) FloatingActionButton startFab;
     @BindView(R.id.stop_fab) FloatingActionButton stopFab;
@@ -87,9 +89,7 @@ public class PointLocationActivity extends BaseActivity implements OnMapReadyCal
 
     @OnClick(R.id.start_fab)
     public void onStartFabClick() {
-        startService(new Intent(this, FusedLocationService.class));
-        startFab.setVisibility(View.GONE);
-        stopFab.setVisibility(View.VISIBLE);
+        showConfirmDialog();
     }
 
     @OnClick(R.id.stop_fab)
@@ -114,5 +114,20 @@ public class PointLocationActivity extends BaseActivity implements OnMapReadyCal
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
 
         this.destination = latLng;
+    }
+
+    private void showConfirmDialog() {
+        ConfirmDialogFragment confirmDialog = ConfirmDialogFragment.newInstance("Destination confirmation",
+               "lat: " + destination.latitude + " long: " + destination.longitude);
+        confirmDialog.setConfirmationListener(this);
+        confirmDialog.show(getFragmentManager(), "ok");
+    }
+
+
+    @Override
+    public void destinationPointConfirmed() {
+        startService(new Intent(this, FusedLocationService.class));
+        startFab.setVisibility(View.GONE);
+        stopFab.setVisibility(View.VISIBLE);
     }
 }
