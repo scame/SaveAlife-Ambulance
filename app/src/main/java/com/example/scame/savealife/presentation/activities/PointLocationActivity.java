@@ -1,14 +1,12 @@
 package com.example.scame.savealife.presentation.activities;
 
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
+import android.support.design.widget.FloatingActionButton;
 import android.util.Log;
+import android.view.View;
 
 import com.example.scame.savealife.FusedLocationService;
 import com.example.scame.savealife.R;
@@ -25,18 +23,21 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import javax.inject.Inject;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class PointLocationActivity extends BaseActivity implements OnMapReadyCallback {
 
+    @BindView(R.id.start_fab) FloatingActionButton startFab;
+    @BindView(R.id.stop_fab) FloatingActionButton stopFab;
+
     private GoogleMap googleMap;
-    private Marker currentPosition;
+    private LatLng destination;
 
     private PointLocationComponent component;
 
@@ -54,23 +55,6 @@ public class PointLocationActivity extends BaseActivity implements OnMapReadyCal
         configureAutocomplete();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        IntentFilter filter = new IntentFilter(FusedLocationService.BROADCAST_ACTION_UPDATE);
-        LocalBroadcastManager.getInstance(this)
-                .registerReceiver(locationBroadcastReceiver, filter);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        LocalBroadcastManager.getInstance(this)
-                .unregisterReceiver(locationBroadcastReceiver);
-    }
-
     private void configureMap() {
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -85,7 +69,7 @@ public class PointLocationActivity extends BaseActivity implements OnMapReadyCal
             @Override
             public void onPlaceSelected(Place place) {
                 Log.i("LOG_TAG", "Place: " + place.getName());
-                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 14));
+                updateDestinationPoint(place.getLatLng());
             }
 
             @Override
@@ -101,31 +85,34 @@ public class PointLocationActivity extends BaseActivity implements OnMapReadyCal
         this.component.inject(this);
     }
 
-    @OnClick(R.id.location_fab)
-    public void onLocationFabClick() {
+    @OnClick(R.id.start_fab)
+    public void onStartFabClick() {
         startService(new Intent(this, FusedLocationService.class));
+        startFab.setVisibility(View.GONE);
+        stopFab.setVisibility(View.VISIBLE);
+    }
+
+    @OnClick(R.id.stop_fab)
+    public void onStopFabClick() {
+        stopService(new Intent(this, FusedLocationService.class));
+        startFab.setVisibility(View.VISIBLE);
+        stopFab.setVisibility(View.GONE);
     }
 
     @Override
+    @SuppressWarnings({"MissingPermission"})
     public void onMapReady(GoogleMap googleMap) {
         this.googleMap = googleMap;
 
-        googleMap.setOnMapClickListener(latLng ->
-                googleMap.addMarker(new MarkerOptions().position(latLng)));
+        googleMap.setMyLocationEnabled(true);
+        googleMap.setOnMapClickListener(this::updateDestinationPoint);
     }
 
-    private final BroadcastReceiver locationBroadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (currentPosition != null) {
-                currentPosition.remove();
-            }
+    private void updateDestinationPoint(LatLng latLng) {
+        googleMap.clear();
+        googleMap.addMarker(new MarkerOptions().position(latLng));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
 
-            double lat = intent.getDoubleExtra(getString(R.string.lat_key), 0);
-            double longitude = intent.getDoubleExtra(getString(R.string.long_key), 0);
-            currentPosition = googleMap.addMarker(new MarkerOptions()
-                    .position(new LatLng(lat, longitude)));
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, longitude), 14));
-        }
-    };
+        this.destination = latLng;
+    }
 }

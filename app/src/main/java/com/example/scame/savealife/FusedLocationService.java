@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -21,8 +20,6 @@ import com.google.android.gms.location.LocationServices;
 public class FusedLocationService extends Service implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
-
-    public static final String BROADCAST_ACTION_UPDATE = "updateLatLong";
 
     private GoogleApiClient googleApiClient;
     private LocationRequest locationRequest;
@@ -60,7 +57,7 @@ public class FusedLocationService extends Service implements GoogleApiClient.Con
     public void onConnected(@Nullable Bundle bundle) {
 
         Location currentLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-        sendLocationBroadcast(currentLocation);
+        sendLocationToServer(currentLocation);
 
         if (currentLocation != null) {
             Log.i("DEBUG", "current location: " + currentLocation.toString());
@@ -92,16 +89,11 @@ public class FusedLocationService extends Service implements GoogleApiClient.Con
                 Double.toString(location.getLongitude());
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
 
-        sendLocationBroadcast(location);
+        sendLocationToServer(location);
     }
 
-    private void sendLocationBroadcast(Location location) {
-        Intent i = new Intent(BROADCAST_ACTION_UPDATE);
-        i.putExtra(getString(R.string.lat_key), location.getLatitude());
-        i.putExtra(getString(R.string.long_key), location.getLongitude());
-
-        LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(this);
-        lbm.sendBroadcast(i);
+    private void sendLocationToServer(Location location) {
+       // TODO: send location info to server
     }
 
     @Override
