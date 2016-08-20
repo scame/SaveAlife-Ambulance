@@ -10,7 +10,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.example.scame.savealife.LocationService;
+import com.example.scame.savealife.FusedLocationService;
 import com.example.scame.savealife.R;
 import com.example.scame.savealife.presentation.di.components.ApplicationComponent;
 import com.example.scame.savealife.presentation.di.components.PointLocationComponent;
@@ -58,7 +58,7 @@ public class PointLocationActivity extends BaseActivity implements OnMapReadyCal
     protected void onResume() {
         super.onResume();
 
-        IntentFilter filter = new IntentFilter(LocationService.BROADCAST_ACTION_UPDATE);
+        IntentFilter filter = new IntentFilter(FusedLocationService.BROADCAST_ACTION_UPDATE);
         LocalBroadcastManager.getInstance(this)
                 .registerReceiver(locationBroadcastReceiver, filter);
     }
@@ -103,7 +103,7 @@ public class PointLocationActivity extends BaseActivity implements OnMapReadyCal
 
     @OnClick(R.id.location_fab)
     public void onLocationFabClick() {
-        startService(new Intent(this, LocationService.class));
+        startService(new Intent(this, FusedLocationService.class));
     }
 
     @Override
@@ -125,6 +125,7 @@ public class PointLocationActivity extends BaseActivity implements OnMapReadyCal
             double longitude = intent.getDoubleExtra(getString(R.string.long_key), 0);
             currentPosition = googleMap.addMarker(new MarkerOptions()
                     .position(new LatLng(lat, longitude)));
+            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, longitude), 14));
         }
     };
 }
