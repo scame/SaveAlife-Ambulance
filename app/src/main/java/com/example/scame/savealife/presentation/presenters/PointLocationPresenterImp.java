@@ -1,15 +1,24 @@
 package com.example.scame.savealife.presentation.presenters;
 
+import com.example.scame.savealife.domain.usecases.DefaultSubscriber;
+import com.example.scame.savealife.domain.usecases.ReverseGeocodeUseCase;
+import com.example.scame.savealife.presentation.models.AddressModel;
+
 public class PointLocationPresenterImp<T extends IPointLocationPresenter.PointLocationView>
                                             implements IPointLocationPresenter<T> {
 
+    private ReverseGeocodeUseCase reverseGeocodeUseCase;
+
     private T view;
 
-    public PointLocationPresenterImp() {}
+    public PointLocationPresenterImp(ReverseGeocodeUseCase useCase) {
+        reverseGeocodeUseCase = useCase;
+    }
 
     @Override
-    public void showMyLocation() {
-
+    public void geocodeToHumanReadableFormat(String latLng) {
+        reverseGeocodeUseCase.setLatLng(latLng);
+        reverseGeocodeUseCase.execute(new ReverseGeocodeSubscriber());
     }
 
     @Override
@@ -30,5 +39,16 @@ public class PointLocationPresenterImp<T extends IPointLocationPresenter.PointLo
     @Override
     public void destroy() {
 
+    }
+
+    private final class ReverseGeocodeSubscriber extends DefaultSubscriber<AddressModel> {
+
+        @Override
+        public void onNext(AddressModel addressModel) {
+            super.onNext(addressModel);
+
+            String latLng = addressModel.getFormattedAddress();
+            view.showHumanReadableAddress(latLng);
+        }
     }
 }

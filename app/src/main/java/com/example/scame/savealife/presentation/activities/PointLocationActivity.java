@@ -33,7 +33,8 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class PointLocationActivity extends BaseActivity implements OnMapReadyCallback,
-                                            ConfirmDialogFragment.ConfirmDialogListener {
+                                            ConfirmDialogFragment.ConfirmDialogListener,
+                                            IPointLocationPresenter.PointLocationView {
 
     @BindView(R.id.start_fab) FloatingActionButton startFab;
     @BindView(R.id.stop_fab) FloatingActionButton stopFab;
@@ -52,6 +53,7 @@ public class PointLocationActivity extends BaseActivity implements OnMapReadyCal
         setContentView(R.layout.point_location_activity);
 
         ButterKnife.bind(this);
+        presenter.setView(this);
 
         configureMap();
         configureAutocomplete();
@@ -117,12 +119,17 @@ public class PointLocationActivity extends BaseActivity implements OnMapReadyCal
     }
 
     private void showConfirmDialog() {
-        ConfirmDialogFragment confirmDialog = ConfirmDialogFragment.newInstance("Destination confirmation",
-               "lat: " + destination.latitude + " long: " + destination.longitude);
+        presenter.geocodeToHumanReadableFormat(destination.latitude + "," + destination.longitude);
+    }
+
+    // presenter's callback
+    @Override
+    public void showHumanReadableAddress(String address) {
+        ConfirmDialogFragment confirmDialog =
+                ConfirmDialogFragment.newInstance("Destination confirmation", address);
         confirmDialog.setConfirmationListener(this);
         confirmDialog.show(getFragmentManager(), "ok");
     }
-
 
     @Override
     public void destinationPointConfirmed() {

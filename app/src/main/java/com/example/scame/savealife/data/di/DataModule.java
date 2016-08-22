@@ -1,5 +1,8 @@
 package com.example.scame.savealife.data.di;
 
+import com.example.scame.savealife.data.repository.GeocodingDataManagerImp;
+import com.example.scame.savealife.data.repository.IGeocodingDataManager;
+
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Singleton;
@@ -26,10 +29,16 @@ public class DataModule {
     @Provides
     Retrofit provideRetrofit(OkHttpClient client) {
         return new Retrofit.Builder()
-                .baseUrl("https://gooogle.com/")
+                .baseUrl("https://maps.googleapis.com/")
                 .client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build();
+    }
+
+    @Singleton
+    @Provides
+    IGeocodingDataManager provideGeocodingDataManager() {
+        return new GeocodingDataManagerImp();
     }
 }
