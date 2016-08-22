@@ -4,7 +4,9 @@ package com.example.scame.savealife.presentation.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.View;
 
@@ -119,7 +121,16 @@ public class PointLocationActivity extends BaseActivity implements OnMapReadyCal
     }
 
     private void showConfirmDialog() {
-        presenter.geocodeToHumanReadableFormat(destination.latitude + "," + destination.longitude);
+        if (destination != null) {
+            presenter.geocodeToHumanReadableFormat(destination.latitude + "," + destination.longitude);
+        } else {
+            buildNoDestinationSelectedSnackbar();
+        }
+    }
+
+    private void buildNoDestinationSelectedSnackbar() {
+        CoordinatorLayout coordinatorLayout = ButterKnife.findById(this, R.id.map_container);
+        Snackbar.make(coordinatorLayout, "Please, choose the destination", Snackbar.LENGTH_LONG).show();
     }
 
     // presenter's callback
