@@ -16,6 +16,6 @@ public class GeocodingDataManagerImp implements IGeocodingDataManager {
         Retrofit retrofit = SaveAlifeApp.getAppComponent().getRetrofit();
         GeocodingApi geocodingApi = retrofit.create(GeocodingApi.class);
 
-        return geocodingApi.reverseGeocode(latLng, PrivateValues.GEOCODING_KEY);
+        return geocodingApi.reverseGeocode(latLng, PrivateValues.GOOGLE_KEY);
     }
 }

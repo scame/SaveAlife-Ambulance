@@ -12,6 +12,7 @@ import com.example.scame.savealife.presentation.activities.PointLocationActivity
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
 
+import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity {
@@ -24,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         startActivity(new Intent(this, PointLocationActivity.class));
+        ButterKnife.bind(this);
 
         if (getIntent().getExtras() != null) {
             for (String key : getIntent().getExtras().keySet()) {
@@ -32,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
 
     @OnClick(R.id.subscribeButton)
     public void onSubscribe(View view) {
@@ -42,11 +45,13 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(MainActivity.this, topic, Toast.LENGTH_SHORT).show();
     }
 
+
     @OnClick(R.id.log_token_btn)
     public void onLogToken(View view) {
+
         String token = FirebaseInstanceId.getInstance().getToken();
 
-        Log.i(TAG, token);
+        Log.i(TAG, token + " this is a token");
         Toast.makeText(MainActivity.this, token, Toast.LENGTH_SHORT).show();
     }
 }

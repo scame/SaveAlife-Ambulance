@@ -1,6 +1,8 @@
 package com.example.scame.savealife.data.di;
 
+import com.example.scame.savealife.data.repository.DirectionsDataManagerImp;
 import com.example.scame.savealife.data.repository.GeocodingDataManagerImp;
+import com.example.scame.savealife.data.repository.IDirectionsDataManager;
 import com.example.scame.savealife.data.repository.IGeocodingDataManager;
 
 import java.util.concurrent.TimeUnit;
@@ -40,5 +42,11 @@ public class DataModule {
     @Provides
     IGeocodingDataManager provideGeocodingDataManager() {
         return new GeocodingDataManagerImp();
+    }
+
+    @Singleton
+    @Provides
+    IDirectionsDataManager provideDirectionsDatamanager() {
+        return new DirectionsDataManagerImp();
     }
 }

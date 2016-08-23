@@ -1,8 +1,10 @@
 package com.example.scame.savealife.presentation.di.modules;
 
+import com.example.scame.savealife.data.repository.IDirectionsDataManager;
 import com.example.scame.savealife.data.repository.IGeocodingDataManager;
 import com.example.scame.savealife.domain.schedulers.ObserveOn;
 import com.example.scame.savealife.domain.schedulers.SubscribeOn;
+import com.example.scame.savealife.domain.usecases.ComputeDirectionUseCase;
 import com.example.scame.savealife.domain.usecases.ReverseGeocodeUseCase;
 import com.example.scame.savealife.presentation.di.PerActivity;
 import com.example.scame.savealife.presentation.presenters.IPointLocationPresenter;
@@ -18,8 +20,9 @@ public class PointLocationModule {
 
     @PerActivity
     @Provides
-    IPointLocationPresenter<PointLocationView> providePointLocationPresenter(ReverseGeocodeUseCase useCase) {
-        return new PointLocationPresenterImp<>(useCase);
+    IPointLocationPresenter<PointLocationView> providePointLocationPresenter(ReverseGeocodeUseCase reverseGeocodeUseCase,
+                                                                             ComputeDirectionUseCase computeDirectionUseCase) {
+        return new PointLocationPresenterImp<>(reverseGeocodeUseCase, computeDirectionUseCase);
     }
 
     @PerActivity
@@ -27,5 +30,13 @@ public class PointLocationModule {
     ReverseGeocodeUseCase provideReverseGeocodeUseCase(SubscribeOn subscribeOn, ObserveOn observeOn,
                                                        IGeocodingDataManager dataManager) {
         return new ReverseGeocodeUseCase(subscribeOn, observeOn, dataManager);
+    }
+
+    @PerActivity
+    @Provides
+    ComputeDirectionUseCase computeDirectionUseCase(SubscribeOn subscribeOn, ObserveOn observeOn,
+                                                    IDirectionsDataManager dataManager) {
+
+        return new ComputeDirectionUseCase(subscribeOn, observeOn, dataManager);
     }
 }

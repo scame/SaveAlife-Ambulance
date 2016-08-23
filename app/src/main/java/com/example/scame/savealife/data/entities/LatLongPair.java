@@ -3,31 +3,27 @@ package com.example.scame.savealife.data.entities;
 
 public class LatLongPair {
 
-    private double fromLat;
-    private double fromLon;
-    private double toLat;
-    private double toLon;
+    private double latitude;
+    private double longitude;
 
-    public LatLongPair(double fromLat, double fromLon, double toLat, double toLon) {
-        this.fromLat = fromLat;
-        this.fromLon = fromLon;
-        this.toLat = toLat;
-        this.toLon = toLon;
+    public LatLongPair(double latitude, double longitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
-    public double getFromLat() {
-        return fromLat;
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
     }
 
-    public double getFromLon() {
-        return fromLon;
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
     }
 
-    public double getToLat() {
-        return toLat;
+    public double getLatitude() {
+        return latitude;
     }
 
-    public double getToLon() {
-        return toLon;
+    public double getLongitude() {
+        return longitude;
     }
 }

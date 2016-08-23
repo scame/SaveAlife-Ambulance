@@ -12,6 +12,7 @@ import android.view.View;
 
 import com.example.scame.savealife.FusedLocationService;
 import com.example.scame.savealife.R;
+import com.example.scame.savealife.data.entities.LatLongPair;
 import com.example.scame.savealife.presentation.di.components.ApplicationComponent;
 import com.example.scame.savealife.presentation.di.components.PointLocationComponent;
 import com.example.scame.savealife.presentation.di.modules.PointLocationModule;
@@ -27,6 +28,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import javax.inject.Inject;
 
@@ -147,5 +149,14 @@ public class PointLocationActivity extends BaseActivity implements OnMapReadyCal
         startService(new Intent(this, FusedLocationService.class));
         startFab.setVisibility(View.GONE);
         stopFab.setVisibility(View.VISIBLE);
+
+        // TODO: call presenter with origin and destination points
+        presenter.computeDirection(new LatLongPair(50.3923508, 30.4787373),
+                                    new LatLongPair(destination.latitude, destination.longitude));
+    }
+
+    @Override
+    public void drawDirectionPolyline(PolylineOptions polyline) {
+        googleMap.addPolyline(polyline);
     }
 }
