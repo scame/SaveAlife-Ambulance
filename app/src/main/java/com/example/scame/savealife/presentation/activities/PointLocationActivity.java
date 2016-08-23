@@ -1,12 +1,16 @@
 package com.example.scame.savealife.presentation.activities;
 
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
 
@@ -22,7 +26,6 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -44,7 +47,9 @@ public class PointLocationActivity extends BaseActivity implements OnMapReadyCal
     @BindView(R.id.stop_fab) FloatingActionButton stopFab;
 
     private GoogleMap googleMap;
+
     private LatLng destination;
+    private LatLng currentPosition;
 
     private PointLocationComponent component;
 
@@ -61,6 +66,23 @@ public class PointLocationActivity extends BaseActivity implements OnMapReadyCal
 
         configureMap();
         configureAutocomplete();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        IntentFilter filter = new IntentFilter(FusedLocationService.BROADCAST_ACTION_UPDATE);
+        LocalBroadcastManager.getInstance(this)
+                .registerReceiver(locationBroadcastReceiver, filter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        LocalBroadcastManager.getInstance(this)
+                .unregisterReceiver(locationBroadcastReceiver);
     }
 
     private void configureMap() {
@@ -111,13 +133,15 @@ public class PointLocationActivity extends BaseActivity implements OnMapReadyCal
         this.googleMap = googleMap;
 
         googleMap.setMyLocationEnabled(true);
-        googleMap.setOnMapClickListener(this::updateDestinationPoint);
+        googleMap.setOnMapLongClickListener(this::updateDestinationPoint);
     }
 
     private void updateDestinationPoint(LatLng latLng) {
         googleMap.clear();
         googleMap.addMarker(new MarkerOptions().position(latLng));
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
+
+        presenter.computeDirection(new LatLongPair(50.3923508, 30.4787373),
+                new LatLongPair(latLng.latitude, latLng.longitude));
 
         this.destination = latLng;
     }
@@ -150,7 +174,6 @@ public class PointLocationActivity extends BaseActivity implements OnMapReadyCal
         startFab.setVisibility(View.GONE);
         stopFab.setVisibility(View.VISIBLE);
 
-        // TODO: call presenter with origin and destination points
         presenter.computeDirection(new LatLongPair(50.3923508, 30.4787373),
                                     new LatLongPair(destination.latitude, destination.longitude));
     }
@@ -159,4 +182,14 @@ public class PointLocationActivity extends BaseActivity implements OnMapReadyCal
     public void drawDirectionPolyline(PolylineOptions polyline) {
         googleMap.addPolyline(polyline);
     }
+
+    private final BroadcastReceiver locationBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            double latitude = intent.getDoubleExtra(getString(R.string.lat_key), 0);
+            double longitude = intent.getDoubleExtra(getString(R.string.long_key), 0);
+            currentPosition = new LatLng(latitude, longitude);
+        }
+    };
 }

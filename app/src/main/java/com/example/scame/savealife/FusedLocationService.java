@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -20,6 +21,8 @@ import com.google.android.gms.location.LocationServices;
 public class FusedLocationService extends Service implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
+
+    public static final String BROADCAST_ACTION_UPDATE = "updateLatLong";
 
     private GoogleApiClient googleApiClient;
     private LocationRequest locationRequest;
@@ -90,10 +93,20 @@ public class FusedLocationService extends Service implements GoogleApiClient.Con
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
 
         sendLocationToServer(location);
+        sendLocationBroadcast(location);
     }
 
     private void sendLocationToServer(Location location) {
        // TODO: send location info to server
+    }
+
+    private void sendLocationBroadcast(Location location) {
+        Intent i = new Intent(BROADCAST_ACTION_UPDATE);
+        i.putExtra(getString(R.string.lat_key), location.getLatitude());
+        i.putExtra(getString(R.string.long_key), location.getLongitude());
+
+        LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(this);
+        lbm.sendBroadcast(i);
     }
 
     @Override
