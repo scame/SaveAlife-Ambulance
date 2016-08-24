@@ -10,9 +10,13 @@ public interface IPointLocationPresenter<T> extends Presenter<T> {
         void showHumanReadableAddress(String latLng);
 
         void drawDirectionPolyline(PolylineOptions polyline);
+
+        void updateCurrentLocation(LatLongPair latLongPair);
     }
 
     void geocodeToHumanReadableFormat(String latLng);
 
     void computeDirection(LatLongPair origin, LatLongPair destination);
+
+    void startLocationUpdates();
 }

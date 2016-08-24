@@ -1,8 +1,11 @@
 package com.example.scame.savealife.presentation.presenters;
 
+import android.util.Log;
+
 import com.example.scame.savealife.data.entities.LatLongPair;
 import com.example.scame.savealife.domain.usecases.ComputeDirectionUseCase;
 import com.example.scame.savealife.domain.usecases.DefaultSubscriber;
+import com.example.scame.savealife.domain.usecases.LocationUpdatesUseCase;
 import com.example.scame.savealife.domain.usecases.ReverseGeocodeUseCase;
 import com.example.scame.savealife.presentation.models.AddressModel;
 import com.example.scame.savealife.presentation.models.DirectionModel;
@@ -14,13 +17,17 @@ public class PointLocationPresenterImp<T extends IPointLocationPresenter.PointLo
 
     private ComputeDirectionUseCase computeDirectionUseCase;
 
+    private LocationUpdatesUseCase locationUpdatesUseCase;
+
     private T view;
 
     public PointLocationPresenterImp(ReverseGeocodeUseCase reverseGeocodeUseCase,
-                                     ComputeDirectionUseCase computeDirectionUseCase) {
+                                     ComputeDirectionUseCase computeDirectionUseCase,
+                                     LocationUpdatesUseCase locationUpdatesUseCase) {
 
         this.reverseGeocodeUseCase = reverseGeocodeUseCase;
         this.computeDirectionUseCase = computeDirectionUseCase;
+        this.locationUpdatesUseCase = locationUpdatesUseCase;
     }
 
     @Override
@@ -38,6 +45,12 @@ public class PointLocationPresenterImp<T extends IPointLocationPresenter.PointLo
     }
 
     @Override
+    public void startLocationUpdates() {
+        Log.i("onxStarting", "starting");
+        locationUpdatesUseCase.execute(new LocationUpdatesSubscriber());
+    }
+
+    @Override
     public void setView(T view) {
         this.view = view;
     }
@@ -49,7 +62,7 @@ public class PointLocationPresenterImp<T extends IPointLocationPresenter.PointLo
 
     @Override
     public void pause() {
-
+        locationUpdatesUseCase.unsubscribe();
     }
 
     @Override
@@ -75,6 +88,31 @@ public class PointLocationPresenterImp<T extends IPointLocationPresenter.PointLo
             super.onNext(directionModel);
 
             view.drawDirectionPolyline(directionModel.getPolyline());
+        }
+    }
+
+    private final class LocationUpdatesSubscriber extends DefaultSubscriber<LatLongPair> {
+
+        @Override
+        public void onCompleted() {
+            super.onCompleted();
+
+            Log.i("onxCompeted", "true");
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            super.onError(e);
+
+            Log.i("onxError", e.getLocalizedMessage());
+        }
+
+        @Override
+        public void onNext(LatLongPair latLongPair) {
+            super.onNext(latLongPair);
+
+            Log.i("onxNext", latLongPair.getLatitude() + "," + latLongPair.getLongitude());
+            view.updateCurrentLocation(latLongPair);
         }
     }
 }

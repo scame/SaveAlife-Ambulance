@@ -1,5 +1,7 @@
 package com.example.scame.savealife.presentation.di.components;
 
+import android.app.Application;
+
 import com.example.scame.savealife.data.di.DataModule;
 import com.example.scame.savealife.presentation.di.modules.ApplicationModule;
 import com.example.scame.savealife.presentation.di.modules.PointLocationModule;
@@ -12,6 +14,8 @@ import retrofit2.Retrofit;
 @Singleton
 @Component(modules = {DataModule.class, ApplicationModule.class})
 public interface ApplicationComponent {
+
+    Application getApp();
 
     Retrofit getRetrofit();
 

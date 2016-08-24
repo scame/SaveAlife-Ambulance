@@ -44,6 +44,15 @@
             app:layout_anchorGravity="bottom|center_horizontal|end"
             android:visibility="gone"/>
 
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/my_location_fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|right"
+            android:layout_margin="16dp"
+            android:src="@drawable/ic_location_searching_black_24dp"
+            app:layout_anchorGravity="top|right|end" />
+
     </android.support.design.widget.CoordinatorLayout>
 
 </LinearLayout>

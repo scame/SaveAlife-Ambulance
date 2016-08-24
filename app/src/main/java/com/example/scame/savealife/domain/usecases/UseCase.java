@@ -32,7 +32,10 @@ public abstract class UseCase<T> {
                     .doOnCompleted(() -> observable = null);
 
             subscription = observable.subscribe(subscriber);
+        } else {
+            subscription = observable.subscribe(subscriber);
         }
+
     }
 
     protected abstract Observable<T> getUseCaseObservable();
