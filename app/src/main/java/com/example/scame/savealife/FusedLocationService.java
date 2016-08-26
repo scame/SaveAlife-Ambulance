@@ -11,12 +11,16 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.scame.savealife.data.entities.LatLongPair;
+import com.example.scame.savealife.data.repository.ILocationDataManager;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
+
+import javax.inject.Inject;
 
 public class FusedLocationService extends Service implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
@@ -28,11 +32,14 @@ public class FusedLocationService extends Service implements GoogleApiClient.Con
     private long FASTEST_INTERVAL = 2000;
     private long SMALLEST_DISPLACEMENT = 300;
 
-    private LatLng destination;
+    @Inject
+    ILocationDataManager locationDataManager;
 
     @Override
     public void onCreate() {
         super.onCreate();
+
+        SaveAlifeApp.getAppComponent().inject(this);
 
         googleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
@@ -43,17 +50,9 @@ public class FusedLocationService extends Service implements GoogleApiClient.Con
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        getDestinationFromIntent(intent);
         googleApiClient.connect();
 
         return START_STICKY;
-    }
-
-    private void getDestinationFromIntent(Intent intent) {
-        double latitude = intent.getExtras().getDouble(getString(R.string.lat_key), 0);
-        double longitude = intent.getExtras().getDouble(getString(R.string.long_key), 0);
-
-        destination = new LatLng(latitude, longitude);
     }
 
     @Override
@@ -105,8 +104,7 @@ public class FusedLocationService extends Service implements GoogleApiClient.Con
     }
 
     private void sendLocationToServer(Location location) {
-
-        // TODO: send location info to server
+        locationDataManager.sendLocationToServer(new LatLongPair(location.getLatitude(), location.getLongitude()));
     }
 
 

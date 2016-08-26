@@ -44,8 +44,6 @@ public class PointLocationActivity extends BaseActivity implements OnMapReadyCal
                                             ConfirmDialogFragment.ConfirmDialogListener,
                                             IPointLocationPresenter.PointLocationView {
 
-    public static final String BROADCAST_SEND_DESTINATION = "sendDestination";
-
     private static final int CIRCLE_RADIUS = 250;
 
     @BindView(R.id.start_fab) FloatingActionButton startFab;
@@ -213,16 +211,9 @@ public class PointLocationActivity extends BaseActivity implements OnMapReadyCal
         presenter.computeDirection(new LatLongPair(currentPosition.latitude, currentPosition.longitude),
                                     new LatLongPair(destination.latitude, destination.longitude));
 
-        startFusedLocationService();
+        startService(new Intent(this, FusedLocationService.class));
     }
 
-    private void startFusedLocationService() {
-        Intent i = new Intent(this, FusedLocationService.class);
-        i.putExtra(getString(R.string.lat_key), destination.latitude);
-        i.putExtra(getString(R.string.long_key), destination.longitude);
-
-        startService(i);
-    }
 
     @Override
     public void drawDirectionPolyline(PolylineOptions polyline) {

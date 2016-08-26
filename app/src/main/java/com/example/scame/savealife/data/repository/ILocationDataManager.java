@@ -10,4 +10,6 @@ public interface ILocationDataManager {
     Observable<LatLongPair> startLocationUpdates();
 
     void stopLocationUpdates();
+
+    void sendLocationToServer(LatLongPair latLongPair);
 }

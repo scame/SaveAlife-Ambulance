@@ -2,6 +2,7 @@ package com.example.scame.savealife.presentation.di.components;
 
 import android.app.Application;
 
+import com.example.scame.savealife.FusedLocationService;
 import com.example.scame.savealife.data.di.DataModule;
 import com.example.scame.savealife.presentation.di.modules.ApplicationModule;
 import com.example.scame.savealife.presentation.di.modules.PointLocationModule;
@@ -20,4 +21,6 @@ public interface ApplicationComponent {
     Retrofit getRetrofit();
 
     PointLocationComponent getPointLocationComponent(PointLocationModule module);
+
+    void inject(FusedLocationService fusedLocationService);
 }

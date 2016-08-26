@@ -6,6 +6,8 @@ import com.example.scame.savealife.data.repository.IDirectionsDataManager;
 import com.example.scame.savealife.data.repository.IGeocodingDataManager;
 import com.example.scame.savealife.data.repository.ILocationDataManager;
 import com.example.scame.savealife.data.repository.LocationDataManagerImp;
+import com.example.scame.savealife.domain.schedulers.ObserveOn;
+import com.example.scame.savealife.domain.schedulers.SubscribeOn;
 
 import java.util.concurrent.TimeUnit;
 
@@ -54,7 +56,7 @@ public class DataModule {
 
     @Singleton
     @Provides
-    ILocationDataManager provideLocationDataManager() {
-        return new LocationDataManagerImp();
+    ILocationDataManager provideLocationDataManager(SubscribeOn subscribeOn, ObserveOn observeOn) {
+        return new LocationDataManagerImp(observeOn, subscribeOn);
     }
 }
