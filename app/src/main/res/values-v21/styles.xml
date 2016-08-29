@@ -6,10 +6,11 @@
         <item name="android:textColor">@color/text_dark</item>
     </style>
     <style name="SaveALifeTheme.Green" parent="SaveALifeTheme">
-        <item name="colorPrimary">@color/theme_green_primary</item>
-        <item name="colorPrimaryDark">@color/theme_green_primary_dark</item>
+        <item name="android:colorPrimary">@color/theme_green_primary</item>
+        <item name="android:colorPrimaryDark">@color/theme_green_primary_dark</item>
         <item name="android:textColorPrimary">@color/theme_green_text</item>
+        <item name="android:statusBarColor">@color/theme_green_primary_dark</item>
         <item name="android:windowBackground">@color/theme_green_background</item>
-        <item name="colorAccent">@color/theme_green_accent</item>
+        <item name="android:colorAccent">@color/theme_green_accent</item>
     </style>
 </resources>

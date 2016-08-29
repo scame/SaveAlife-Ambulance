@@ -1,8 +1,11 @@
 <resources>
     <string name="app_name">SaveAlife Ambulance</string>
-
     <string name="AREA_KEY">areaKey</string>
-
     <string name="lat_key">latitudeKey</string>
     <string name="long_key">longitudeKey</string>
+    <string name="mb_button">Ready</string>
+    <string name="mb_success">Success</string>
+    <string name="dialog_title">Destination</string>
+    <string name="dialog_positive">Yes</string>
+    <string name="dialog_negative">No</string>
 </resources>

@@ -3,21 +3,27 @@ package com.example.scame.savealife.presentation.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.ColorRes;
+import android.support.annotation.DimenRes;
+import android.support.annotation.IntegerRes;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.util.Log;
-import android.view.View;
 
+import com.dd.morphingbutton.MorphingButton;
+import com.dd.morphingbutton.impl.LinearProgressButton;
 import com.example.scame.savealife.FusedLocationService;
 import com.example.scame.savealife.R;
 import com.example.scame.savealife.data.entities.LatLongPair;
 import com.example.scame.savealife.presentation.di.components.ApplicationComponent;
 import com.example.scame.savealife.presentation.di.components.PointLocationComponent;
 import com.example.scame.savealife.presentation.di.modules.PointLocationModule;
-import com.example.scame.savealife.presentation.fragments.ConfirmDialogFragment;
 import com.example.scame.savealife.presentation.presenters.IPointLocationPresenter;
+import com.example.scame.savealife.presentation.utility.ProgressGenerator;
+import com.github.javiersantos.materialstyleddialogs.MaterialStyledDialog;
+import com.github.javiersantos.materialstyleddialogs.enums.Style;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
@@ -41,13 +47,13 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class PointLocationActivity extends BaseActivity implements OnMapReadyCallback,
-                                            ConfirmDialogFragment.ConfirmDialogListener,
                                             IPointLocationPresenter.PointLocationView {
 
     private static final int CIRCLE_RADIUS = 250;
 
-    @BindView(R.id.start_fab) FloatingActionButton startFab;
-    @BindView(R.id.stop_fab) FloatingActionButton stopFab;
+    @BindView(R.id.morph_btn) LinearProgressButton morphButton;
+
+    private boolean morphButtonClicked = false;
 
     private GoogleMap googleMap;
 
@@ -75,6 +81,8 @@ public class PointLocationActivity extends BaseActivity implements OnMapReadyCal
 
         configureMap();
         configureAutocomplete();
+
+        morphToReady(morphButton, 0);
     }
 
     @Override
@@ -104,8 +112,8 @@ public class PointLocationActivity extends BaseActivity implements OnMapReadyCal
             currentPositionMarker = googleMap.addMarker(new MarkerOptions()
                     .position(new LatLng(latLongPair.getLatitude(), latLongPair.getLongitude())));
             currentPositionCircle = googleMap.addCircle(new CircleOptions()
-                    .fillColor(R.color.colorPrimary)
-                    .strokeColor(R.color.colorPrimaryDark)
+                    .fillColor(R.color.theme_green_primary)
+                    .strokeColor(R.color.theme_green_primary_dark)
                     .center(new LatLng(latLongPair.getLatitude(), latLongPair.getLongitude()))
                     .radius(CIRCLE_RADIUS));
         }
@@ -147,18 +155,6 @@ public class PointLocationActivity extends BaseActivity implements OnMapReadyCal
         }
     }
 
-    @OnClick(R.id.start_fab)
-    public void onStartFabClick() {
-        showConfirmDialog();
-    }
-
-    @OnClick(R.id.stop_fab)
-    public void onStopFabClick() {
-        stopService(new Intent(this, FusedLocationService.class));
-        startFab.setVisibility(View.VISIBLE);
-        stopFab.setVisibility(View.GONE);
-    }
-
     @Override
     @SuppressWarnings({"MissingPermission"})
     public void onMapReady(GoogleMap googleMap) {
@@ -180,6 +176,79 @@ public class PointLocationActivity extends BaseActivity implements OnMapReadyCal
                 new LatLongPair(destination.latitude, destination.longitude));
     }
 
+    @OnClick(R.id.morph_btn)
+    public void confirmButtonClick(){
+        morphButtonClicked = !morphButtonClicked;
+
+        if (morphButtonClicked) {
+            showConfirmDialog();
+        } else {
+            stopService(new Intent(this, FusedLocationService.class));
+            morphToReady(morphButton, integer(R.integer.mb_animation));
+        }
+    }
+
+    private void morphToReady(final MorphingButton btnMorph, int duration) {
+        MorphingButton.Params square = MorphingButton.Params.create()
+                .text(getString(R.string.mb_button))
+                .duration(duration)
+                .cornerRadius(dimen(R.dimen.mb_corner_radius_2))
+                .width(dimen(R.dimen.mb_width_100))
+                .height(dimen(R.dimen.mb_height_56))
+                .color(color(R.color.theme_green_primary))
+                .colorPressed(color(R.color.theme_green_primary_dark));
+
+        btnMorph.morph(square);
+    }
+
+    private void morphToSuccess(final MorphingButton btnMorph) {
+        MorphingButton.Params circle = MorphingButton.Params.create()
+                .text(getString(R.string.mb_success))
+                .duration(integer(R.integer.mb_animation))
+                .cornerRadius(dimen(R.dimen.mb_height_56))
+                .width(dimen(R.dimen.mb_width_120))
+                .height(dimen(R.dimen.mb_height_56))
+                .color(color(R.color.theme_green_primary))
+                .colorPressed(color(R.color.theme_green_primary_dark))
+                .icon(R.drawable.ic_done);
+
+        btnMorph.morph(circle);
+    }
+
+    private void simulateProgress(@NonNull final LinearProgressButton button) {
+        int progressColor = color(R.color.theme_green_accent);
+        int color = color(R.color.mb_gray);
+        int progressCornerRadius = dimen(R.dimen.mb_corner_radius_4);
+        int width = dimen(R.dimen.mb_width_200);
+        int height = dimen(R.dimen.mb_height_8);
+        int duration = integer(R.integer.mb_animation);
+
+        ProgressGenerator generator = new ProgressGenerator(() -> {
+            morphToSuccess(button);
+            button.unblockTouch();
+        });
+
+        button.blockTouch();
+        button.morphToProgress(color, progressColor, progressCornerRadius, width, height, duration);
+        generator.start(button);
+    }
+
+    private MaterialStyledDialog destinationDialog(String description) {
+        return new MaterialStyledDialog(this)
+                .withDialogAnimation(true)
+                .setTitle(getString(R.string.dialog_title))
+                .setStyle(Style.HEADER_WITH_TITLE)
+                .setHeaderColor(R.color.theme_green_primary_dark)
+                .setDescription(description)
+                .setPositive(getString(R.string.dialog_positive), (dialog, which) -> simulateProgress(morphButton))
+                .setNegative(getString(R.string.dialog_negative), (dialog, which) -> {
+                    morphButtonClicked = !morphButtonClicked;
+                    dialog.dismiss();
+                })
+                .setCancelable(false)
+                .build();
+    }
+
     private void showConfirmDialog() {
         if (destination != null) {
             presenter.geocodeToHumanReadableFormat(destination.latitude + "," + destination.longitude);
@@ -196,24 +265,9 @@ public class PointLocationActivity extends BaseActivity implements OnMapReadyCal
     // presenter's callback
     @Override
     public void showHumanReadableAddress(String address) {
-        ConfirmDialogFragment confirmDialog =
-                ConfirmDialogFragment.newInstance("Destination confirmation", address);
-        confirmDialog.setConfirmationListener(this);
-        confirmDialog.show(getFragmentManager(), "ok");
+        MaterialStyledDialog dialog = destinationDialog(address);
+        dialog.show();
     }
-
-    // dialog fragment's callback
-    @Override
-    public void destinationPointConfirmed() {
-        startFab.setVisibility(View.GONE);
-        stopFab.setVisibility(View.VISIBLE);
-
-        presenter.computeDirection(new LatLongPair(currentPosition.latitude, currentPosition.longitude),
-                                    new LatLongPair(destination.latitude, destination.longitude));
-
-        startService(new Intent(this, FusedLocationService.class));
-    }
-
 
     @Override
     public void drawDirectionPolyline(PolylineOptions polyline) {
@@ -222,5 +276,17 @@ public class PointLocationActivity extends BaseActivity implements OnMapReadyCal
         }
 
         currentPolyline = googleMap.addPolyline(polyline);
+    }
+
+    private int dimen(@DimenRes int resId) {
+        return (int) getResources().getDimension(resId);
+    }
+
+    private int color(@ColorRes int resId) {
+        return getResources().getColor(resId);
+    }
+
+    private int integer(@IntegerRes int resId) {
+        return getResources().getInteger(resId);
     }
 }

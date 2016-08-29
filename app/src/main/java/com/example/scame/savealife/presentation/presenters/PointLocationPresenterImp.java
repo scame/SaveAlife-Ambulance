@@ -46,7 +46,6 @@ public class PointLocationPresenterImp<T extends IPointLocationPresenter.PointLo
 
     @Override
     public void startLocationUpdates() {
-        Log.i("onxStarting", "starting");
         locationUpdatesUseCase.execute(new LocationUpdatesSubscriber());
     }
 
@@ -92,13 +91,6 @@ public class PointLocationPresenterImp<T extends IPointLocationPresenter.PointLo
     }
 
     private final class LocationUpdatesSubscriber extends DefaultSubscriber<LatLongPair> {
-
-        @Override
-        public void onCompleted() {
-            super.onCompleted();
-
-            Log.i("onxCompeted", "true");
-        }
 
         @Override
         public void onError(Throwable e) {
