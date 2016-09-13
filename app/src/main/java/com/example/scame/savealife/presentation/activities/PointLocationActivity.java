@@ -40,6 +40,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.inject.Inject;
 
 import butterknife.BindView;
@@ -68,6 +71,8 @@ public class PointLocationActivity extends BaseActivity implements OnMapReadyCal
 
     private PointLocationComponent component;
 
+    private Bundle savedInstanceState;
+
     @Inject
     IPointLocationPresenter<IPointLocationPresenter.PointLocationView> presenter;
 
@@ -76,6 +81,8 @@ public class PointLocationActivity extends BaseActivity implements OnMapReadyCal
         super.onCreate(savedInstanceState);
         setContentView(R.layout.point_location_activity);
 
+        this.savedInstanceState = savedInstanceState;
+
         ButterKnife.bind(this);
         presenter.setView(this);
 
@@ -83,6 +90,49 @@ public class PointLocationActivity extends BaseActivity implements OnMapReadyCal
         configureAutocomplete();
 
         morphToReady(morphButton, 0);
+    }
+
+    @Override
+    @SuppressWarnings({"MissingPermission"})
+    public void onMapReady(GoogleMap googleMap) {
+        this.googleMap = googleMap;
+
+        googleMap.setOnMapLongClickListener(this::updateDestinationPoint);
+
+        if (savedInstanceState != null) {
+            List<LatLng> pathList = savedInstanceState.getParcelableArrayList(getString(R.string.path_key));
+            LatLng currentLocation = savedInstanceState.getParcelable(getString(R.string.current_location_key));
+            LatLng destination = savedInstanceState.getParcelable(getString(R.string.destination_key));
+
+            if (pathList != null) {
+                currentPolyline = googleMap.addPolyline(new PolylineOptions().addAll(pathList));
+            }
+            if (currentLocation != null) {
+                updateCurrentLocation(new LatLongPair(currentLocation.latitude, currentLocation.longitude));
+            }
+            if (destination != null) {
+                destinationMarker = googleMap.addMarker(new MarkerOptions().position(destination));
+                this.destination = destination;
+            }
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        if (currentPolyline != null) {
+            outState.putParcelableArrayList(getString(R.string.path_key),
+                    new ArrayList<>(currentPolyline.getPoints()));
+        }
+
+        if (currentPosition != null) {
+            outState.putParcelable(getString(R.string.current_location_key), currentPosition);
+        }
+
+        if (destination != null) {
+            outState.putParcelable(getString(R.string.destination_key), destination);
+        }
     }
 
     @Override
@@ -116,6 +166,13 @@ public class PointLocationActivity extends BaseActivity implements OnMapReadyCal
                     .strokeColor(R.color.theme_green_primary_dark)
                     .center(new LatLng(latLongPair.getLatitude(), latLongPair.getLongitude()))
                     .radius(CIRCLE_RADIUS));
+
+            if (destination != null) {
+                presenter.computeDirection(
+                        new LatLongPair(currentPosition.latitude, currentPosition.longitude),
+                        new LatLongPair(destination.latitude, destination.longitude)
+                );
+            }
         }
     }
 
@@ -155,13 +212,6 @@ public class PointLocationActivity extends BaseActivity implements OnMapReadyCal
         }
     }
 
-    @Override
-    @SuppressWarnings({"MissingPermission"})
-    public void onMapReady(GoogleMap googleMap) {
-        this.googleMap = googleMap;
-
-        googleMap.setOnMapLongClickListener(this::updateDestinationPoint);
-    }
 
     private void updateDestinationPoint(LatLng latLng) {
         this.destination = latLng;

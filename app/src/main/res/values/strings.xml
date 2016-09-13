@@ -8,4 +8,8 @@
     <string name="dialog_title">Destination</string>
     <string name="dialog_positive">Yes</string>
     <string name="dialog_negative">No</string>
+
+    <string name="path_key">pathKey</string>
+    <string name="current_location_key">currentLocationKey</string>
+    <string name="destination_key">destinationKey</string>
 </resources>
