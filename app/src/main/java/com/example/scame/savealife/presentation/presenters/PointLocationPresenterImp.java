@@ -7,8 +7,13 @@ import com.example.scame.savealife.domain.usecases.ComputeDirectionUseCase;
 import com.example.scame.savealife.domain.usecases.DefaultSubscriber;
 import com.example.scame.savealife.domain.usecases.LocationUpdatesUseCase;
 import com.example.scame.savealife.domain.usecases.ReverseGeocodeUseCase;
+import com.example.scame.savealife.domain.usecases.SetupDestinationUseCase;
 import com.example.scame.savealife.presentation.models.AddressModel;
 import com.example.scame.savealife.presentation.models.DirectionModel;
+
+import java.io.IOException;
+
+import okhttp3.ResponseBody;
 
 public class PointLocationPresenterImp<T extends IPointLocationPresenter.PointLocationView>
                                             implements IPointLocationPresenter<T> {
@@ -19,15 +24,19 @@ public class PointLocationPresenterImp<T extends IPointLocationPresenter.PointLo
 
     private LocationUpdatesUseCase locationUpdatesUseCase;
 
+    private SetupDestinationUseCase destinationUseCase;
+
     private T view;
 
     public PointLocationPresenterImp(ReverseGeocodeUseCase reverseGeocodeUseCase,
                                      ComputeDirectionUseCase computeDirectionUseCase,
-                                     LocationUpdatesUseCase locationUpdatesUseCase) {
+                                     LocationUpdatesUseCase locationUpdatesUseCase,
+                                     SetupDestinationUseCase destinationUseCase) {
 
         this.reverseGeocodeUseCase = reverseGeocodeUseCase;
         this.computeDirectionUseCase = computeDirectionUseCase;
         this.locationUpdatesUseCase = locationUpdatesUseCase;
+        this.destinationUseCase = destinationUseCase;
     }
 
     @Override
@@ -42,6 +51,12 @@ public class PointLocationPresenterImp<T extends IPointLocationPresenter.PointLo
         computeDirectionUseCase.setOrigin(origin);
 
         computeDirectionUseCase.execute(new DirectionSubscriber());
+    }
+
+    @Override
+    public void setupDestination(LatLongPair latLongPair) {
+        destinationUseCase.setLatLongPair(latLongPair);
+        destinationUseCase.execute(new DestinationSubscriber());
     }
 
     @Override
@@ -67,6 +82,34 @@ public class PointLocationPresenterImp<T extends IPointLocationPresenter.PointLo
     @Override
     public void destroy() {
 
+    }
+
+    private final class DestinationSubscriber extends DefaultSubscriber<ResponseBody> {
+
+        @Override
+        public void onNext(ResponseBody responseBody) {
+            super.onNext(responseBody);
+
+            try {
+                Log.i("onxDestNext", responseBody.string());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onCompleted() {
+            super.onCompleted();
+
+            Log.i("onxDestCompleted", "completed");
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            super.onError(e);
+
+            Log.i("onxDestError", e.getLocalizedMessage());
+        }
     }
 
     private final class ReverseGeocodeSubscriber extends DefaultSubscriber<AddressModel> {

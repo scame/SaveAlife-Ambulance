@@ -1,13 +1,19 @@
 package com.example.scame.savealife.data.entities;
 
 
-public class AmbulanceEntity {
+public class LocationMessageEntity {
+
+    private String currentToken;
 
     private String role;
 
     private double currentLat;
 
     private double currentLon;
+
+    public void setCurrentToken(String currentToken) {
+        this.currentToken = currentToken;
+    }
 
     public void setRole(String role) {
         this.role = role;
@@ -19,6 +25,10 @@ public class AmbulanceEntity {
 
     public void setCurrentLon(double currentLon) {
         this.currentLon = currentLon;
+    }
+
+    public String getCurrentToken() {
+        return currentToken;
     }
 
     public String getRole() {

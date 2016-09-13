@@ -89,6 +89,10 @@ public class PointLocationActivity extends BaseActivity implements OnMapReadyCal
         configureMap();
         configureAutocomplete();
 
+        if (!isMyServiceRunning(FusedLocationService.class)) {
+            startService(new Intent(this, FusedLocationService.class));
+        }
+
         morphToReady(morphButton, 0);
     }
 
@@ -290,7 +294,10 @@ public class PointLocationActivity extends BaseActivity implements OnMapReadyCal
                 .setStyle(Style.HEADER_WITH_TITLE)
                 .setHeaderColor(R.color.theme_green_primary_dark)
                 .setDescription(description)
-                .setPositive(getString(R.string.dialog_positive), (dialog, which) -> simulateProgress(morphButton))
+                .setPositive(getString(R.string.dialog_positive), (dialog, which) -> {
+                    simulateProgress(morphButton);
+                    presenter.setupDestination(new LatLongPair(destination.latitude, destination.longitude));
+                })
                 .setNegative(getString(R.string.dialog_negative), (dialog, which) -> {
                     morphButtonClicked = !morphButtonClicked;
                     dialog.dismiss();

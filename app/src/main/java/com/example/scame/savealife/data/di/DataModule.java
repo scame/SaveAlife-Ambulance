@@ -1,13 +1,15 @@
 package com.example.scame.savealife.data.di;
 
 import com.example.scame.savealife.data.repository.DirectionsDataManagerImp;
+import com.example.scame.savealife.data.repository.FirebaseTokenManagerImp;
 import com.example.scame.savealife.data.repository.GeocodingDataManagerImp;
 import com.example.scame.savealife.data.repository.IDirectionsDataManager;
+import com.example.scame.savealife.data.repository.IFirebaseTokenManager;
 import com.example.scame.savealife.data.repository.IGeocodingDataManager;
 import com.example.scame.savealife.data.repository.ILocationDataManager;
+import com.example.scame.savealife.data.repository.IMessagesDataManager;
 import com.example.scame.savealife.data.repository.LocationDataManagerImp;
-import com.example.scame.savealife.domain.schedulers.ObserveOn;
-import com.example.scame.savealife.domain.schedulers.SubscribeOn;
+import com.example.scame.savealife.data.repository.MessagesDataManagerImp;
 
 import java.util.concurrent.TimeUnit;
 
@@ -56,7 +58,19 @@ public class DataModule {
 
     @Singleton
     @Provides
-    ILocationDataManager provideLocationDataManager(SubscribeOn subscribeOn, ObserveOn observeOn) {
-        return new LocationDataManagerImp(observeOn, subscribeOn);
+    ILocationDataManager provideLocationDataManager() {
+        return new LocationDataManagerImp();
+    }
+
+    @Singleton
+    @Provides
+    IMessagesDataManager provideMessagesDataManager() {
+        return new MessagesDataManagerImp();
+    }
+
+    @Singleton
+    @Provides
+    IFirebaseTokenManager provideFirebaseTokenManager() {
+        return new FirebaseTokenManagerImp();
     }
 }

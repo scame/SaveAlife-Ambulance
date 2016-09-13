@@ -19,4 +19,6 @@ public interface IPointLocationPresenter<T> extends Presenter<T> {
     void computeDirection(LatLongPair origin, LatLongPair destination);
 
     void startLocationUpdates();
+
+    void setupDestination(LatLongPair latLongPair);
 }

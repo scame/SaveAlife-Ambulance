@@ -12,4 +12,10 @@
     <string name="path_key">pathKey</string>
     <string name="current_location_key">currentLocationKey</string>
     <string name="destination_key">destinationKey</string>
+
+    <string name="old_token_key">oldToken</string>
+    <string name="refreshed_token_key">refreshedToken</string>
+
+    <string name="current_latitude">currentLat</string>
+    <string name="current_longitude">currentLong</string>
 </resources>

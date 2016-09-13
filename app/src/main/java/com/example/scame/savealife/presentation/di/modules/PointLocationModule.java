@@ -3,11 +3,13 @@ package com.example.scame.savealife.presentation.di.modules;
 import com.example.scame.savealife.data.repository.IDirectionsDataManager;
 import com.example.scame.savealife.data.repository.IGeocodingDataManager;
 import com.example.scame.savealife.data.repository.ILocationDataManager;
+import com.example.scame.savealife.data.repository.IMessagesDataManager;
 import com.example.scame.savealife.domain.schedulers.ObserveOn;
 import com.example.scame.savealife.domain.schedulers.SubscribeOn;
 import com.example.scame.savealife.domain.usecases.ComputeDirectionUseCase;
 import com.example.scame.savealife.domain.usecases.LocationUpdatesUseCase;
 import com.example.scame.savealife.domain.usecases.ReverseGeocodeUseCase;
+import com.example.scame.savealife.domain.usecases.SetupDestinationUseCase;
 import com.example.scame.savealife.presentation.di.PerActivity;
 import com.example.scame.savealife.presentation.presenters.IPointLocationPresenter;
 import com.example.scame.savealife.presentation.presenters.PointLocationPresenterImp;
@@ -24,8 +26,10 @@ public class PointLocationModule {
     @Provides
     IPointLocationPresenter<PointLocationView> providePointLocationPresenter(ReverseGeocodeUseCase reverseGeocodeUseCase,
                                                                              ComputeDirectionUseCase computeDirectionUseCase,
-                                                                             LocationUpdatesUseCase locationUpdatesUseCase) {
-        return new PointLocationPresenterImp<>(reverseGeocodeUseCase, computeDirectionUseCase, locationUpdatesUseCase);
+                                                                             LocationUpdatesUseCase locationUpdatesUseCase,
+                                                                             SetupDestinationUseCase destinationUseCase) {
+        return new PointLocationPresenterImp<>(reverseGeocodeUseCase, computeDirectionUseCase,
+                locationUpdatesUseCase, destinationUseCase);
     }
 
     @PerActivity
@@ -50,5 +54,13 @@ public class PointLocationModule {
                                                   ILocationDataManager dataManager) {
 
         return new LocationUpdatesUseCase(subscribeOn, observeOn, dataManager);
+    }
+
+    @PerActivity
+    @Provides
+    SetupDestinationUseCase setupDestinationUseCase(SubscribeOn subscribeOn, ObserveOn observeOn,
+                                                    IMessagesDataManager dataManager) {
+
+        return new SetupDestinationUseCase(subscribeOn, observeOn, dataManager);
     }
 }

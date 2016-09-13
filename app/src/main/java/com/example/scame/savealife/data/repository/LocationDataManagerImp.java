@@ -1,29 +1,25 @@
 package com.example.scame.savealife.data.repository;
 
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
+import com.example.scame.savealife.R;
 import com.example.scame.savealife.SaveAlifeApp;
-import com.example.scame.savealife.data.entities.AmbulanceEntity;
 import com.example.scame.savealife.data.entities.LatLongPair;
-import com.example.scame.savealife.data.rest.ServerApi;
-import com.example.scame.savealife.domain.schedulers.ObserveOn;
-import com.example.scame.savealife.domain.schedulers.SubscribeOn;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
-import java.io.IOException;
 import java.net.ConnectException;
 
-import okhttp3.ResponseBody;
-import retrofit2.Retrofit;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
@@ -40,18 +36,9 @@ public class LocationDataManagerImp implements ILocationDataManager, GoogleApiCl
 
     private Subscription subscription;
 
-    private static final String SENDER_TYPE = "ambulance";
-
-    private ObserveOn observeOn;
-    private SubscribeOn subscribeOn;
 
     private long UPDATE_INTERVAL = 10 * 1000;
     private long FASTEST_INTERVAL = 2000;
-
-    public LocationDataManagerImp(ObserveOn observeOn, SubscribeOn subscribeOn) {
-        this.observeOn = observeOn;
-        this.subscribeOn = subscribeOn;
-    }
 
     @SuppressWarnings({"MissingPermission"})
     public Observable<LatLongPair> startLocationUpdates() {
@@ -122,23 +109,14 @@ public class LocationDataManagerImp implements ILocationDataManager, GoogleApiCl
     }
 
     @Override
-    public void sendLocationToServer(LatLongPair latLongPair) {
-        Retrofit retrofit = SaveAlifeApp.getAppComponent().getRetrofit();
-        ServerApi serverApi = retrofit.create(ServerApi.class);
+    public void saveCurrentLocation(LatLongPair latLongPair) {
+        Context context = SaveAlifeApp.getAppComponent().getApp();
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
 
-        serverApi.sendLocationToServer(createAmbulanceEntity(latLongPair))
-                .subscribeOn(subscribeOn.getScheduler())
-                .observeOn(observeOn.getScheduler())
-                .subscribe();
-    }
+        String latitude = String.valueOf(latLongPair.getLatitude());
+        String longitude = String.valueOf(latLongPair.getLongitude());
 
-    private AmbulanceEntity createAmbulanceEntity(LatLongPair latLongPair) {
-        AmbulanceEntity ambulanceEntity = new AmbulanceEntity();
-
-        ambulanceEntity.setCurrentLat(latLongPair.getLatitude());
-        ambulanceEntity.setCurrentLon(latLongPair.getLongitude());
-        ambulanceEntity.setRole(SENDER_TYPE);
-
-        return ambulanceEntity;
+        sp.edit().putString(context.getString(R.string.current_latitude), latitude).apply();
+        sp.edit().putString(context.getString(R.string.current_longitude), longitude).apply();
     }
 }
